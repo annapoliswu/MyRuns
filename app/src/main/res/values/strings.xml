@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MyRuns</string>
+    <string name="name_label">Name</string>
+    <string name="name_hint">Your Name</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">Your Email</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="phone_number_hint">Your Phone Number</string>
+    <string name="gender_label">Gender</string>
+    <string name="female">Female</string>
+    <string name="male">Male</string>
+    <string name="class_label">Class</string>
+    <string name="class_hint">e.g. 2012</string>
+    <string name="major_label">Major</string>
+    <string name="major_hint">Your Major</string>
+    <string name="Save">Save</string>
+    <string name="Cancel">Cancel</string>
+</resources>
