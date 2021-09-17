@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">MyRuns</string>
+    <string name="photo_label">Profile Photo</string>
     <string name="name_label">Name</string>
     <string name="name_hint">Your Name</string>
     <string name="email_label">Email</string>
@@ -13,6 +14,7 @@
     <string name="class_hint">e.g. 2012</string>
     <string name="major_label">Major</string>
     <string name="major_hint">Your Major</string>
-    <string name="Save">Save</string>
-    <string name="Cancel">Cancel</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="change_button">Change</string>
 </resources>

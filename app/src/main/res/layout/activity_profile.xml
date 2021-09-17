@@ -13,6 +13,28 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/photo_label"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="@dimen/default_margin">
+
+            <ImageView
+                android:id="@+id/profile_photo"
+                android:layout_width="100dp"
+                android:layout_height="100dp" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/change_button"
+                android:onClick="onChangePhotoClicked"
+                android:layout_marginLeft ="@dimen/default_margin"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/name_label"/>
         <EditText
             android:id="@+id/profile_name"
@@ -51,6 +73,7 @@
             android:layout_height="wrap_content"
             android:text="@string/gender_label"/>
         <RadioGroup
+            android:id="@+id/profile_gender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -61,7 +84,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="onRadioButtonClicked"
                 android:text="@string/female" />
 
             <RadioButton
@@ -69,7 +91,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="onRadioButtonClicked"
                 android:text="@string/male" />
         </RadioGroup>
 
@@ -108,15 +129,15 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/Save"
-                android:onClick="onSave"
+                android:text="@string/save_button"
+                android:onClick="onSaveClicked"
                 android:minWidth="125dp"
                 android:layout_marginRight="@dimen/default_margin"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/Cancel"
-                android:onClick="onCancel"
+                android:text="@string/cancel_button"
+                android:onClick="onCancelClicked"
                 android:minWidth="125dp"/>
         </LinearLayout>
 
