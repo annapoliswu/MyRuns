@@ -1,4 +1,4 @@
-package com.example.myruns
+package com.zw.myruns
 
 import org.junit.Test
 
