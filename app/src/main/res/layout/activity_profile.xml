@@ -18,12 +18,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/default_margin">
+            android:layout_marginVertical="@dimen/default_margin">
 
             <ImageView
                 android:id="@+id/profile_photo"
                 android:layout_width="100dp"
-                android:layout_height="100dp" />
+                android:layout_height="100dp"
+                android:src="@drawable/profile_placeholder_img"
+                android:contentDescription="Your profile picture"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

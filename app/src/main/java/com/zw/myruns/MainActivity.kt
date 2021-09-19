@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -18,9 +19,11 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 
-//don't need to crop image for us
+
+//NOTE don't need to crop image for this class
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var photoView: ImageView
     private lateinit var nameView: TextView
     private lateinit var emailView: TextView
@@ -28,15 +31,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var genderView: RadioGroup
     private lateinit var classView: TextView
     private lateinit var majorView: TextView
-    private lateinit var sharedPref: SharedPreferences
+
     private val tempImgName = "temp_img.jpg"
     private lateinit var tempImgUri: Uri
     private val profileImgName = "profile_img.jpg"
     private lateinit var profileImgUri: Uri
-    private var profileImg : Bitmap? = null
+
+    private lateinit var sharedPref: SharedPreferences
     private val PERMISSIONS = arrayOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
 
@@ -54,52 +58,71 @@ class MainActivity : AppCompatActivity() {
         classView = findViewById(R.id.profile_class)
         majorView = findViewById(R.id.profile_major)
 
-        //get photo storage location
+        //get photo storage locations
         val tempImgFile = File(getExternalFilesDir(null), tempImgName)
         tempImgUri = FileProvider.getUriForFile(this, "com.zw.myruns", tempImgFile)
-
         val profileImgFile = File(getExternalFilesDir(null), profileImgName)
         profileImgUri = FileProvider.getUriForFile(this, "com.zw.myruns", profileImgFile)
 
+
         //load saved profile from sharedPref
         sharedPref = this.getSharedPreferences(
-            getString(R.string.profile_preference_key),
-            Context.MODE_PRIVATE
+                getString(R.string.profile_preference_key),
+                Context.MODE_PRIVATE
         )
         loadProfile()
+
+        //for config changes
+        if (savedInstanceState != null) {
+            setPhoto(tempImgName, tempImgUri)
+        }
     }
 
 
+    private fun fileExists(imageName: String):Boolean {
+        return File(getExternalFilesDir(null), imageName).exists()
+    }
+
+    //safe set for photo using uri, checks if file at uri exists first
+    private fun setPhoto(imageName: String, imageUri: Uri){
+        if( fileExists(imageName)) {
+            photoView.setImageBitmap(Util.getBitmap(this, imageUri))
+        }
+    }
+
+    private fun deleteTemp(){
+        val tempImgFile = File(getExternalFilesDir(null), tempImgName)
+        tempImgFile.delete()
+    }
 
     fun onChangePhotoClicked(view: View){
-        val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, tempImgUri)
         activityResultLauncher.launch(intent)
     }
     private val activityResultLauncher :  ActivityResultLauncher<Intent> = registerForActivityResult(
-        //parameters: contract (type input needed and type for result)
-        ActivityResultContracts.StartActivityForResult()
-    ) { result: ActivityResult -> photoView.setImageBitmap(Util.getBitmap(this, tempImgUri))
-    }
+            //parameters: contract (type input needed and type for result)
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult -> setPhoto(tempImgName, tempImgUri)
+        }
 
     fun onSaveClicked(view: View) {
         saveProfile()
+        deleteTemp()
         val toast = Toast.makeText(this, "Saved", Toast.LENGTH_SHORT)
         toast.show()
         finish()
     }
 
     fun onCancelClicked(view: View) {
+        deleteTemp()
         val toast = Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT)
         toast.show()
         finish()
     }
 
+    //loads saved profile data. if profile section empty, uses empty string
     private fun loadProfile() {
-        // help load user data that has already been saved
-        //Your helper function calls loadProfile( ) method in onCreate() and uses the same SharedPreference object to load the data and display it to the screen.
-        //first time that the app runs when no previous data is saved. need to make sure some default data (e.g., empty string elements) are displayed.
-        photoView.setImageBitmap(Util.getBitmap(this, profileImgUri))
+        setPhoto(profileImgName, profileImgUri)
 
         val defaultData = ""
         nameView.text = sharedPref.getString("name_key", defaultData)
@@ -113,18 +136,20 @@ class MainActivity : AppCompatActivity() {
             gender.equals("Female") -> genderView.check(R.id.profile_female)
             gender.equals("Male") -> genderView.check(R.id.profile_male)
         }
-
-        println("LOADED: " + nameView.text + "\n" + emailView.text + "\n")
-
-
     }
+
+    //saves the profile in SharedPreference object
     private fun saveProfile(){
-        //this function saves the user input data using a SharedPreference object.
-        val profileImgFile = File(getExternalFilesDir(null), profileImgName)
-        val fOut = FileOutputStream(profileImgFile)
-        Util.getBitmap(this, tempImgUri).compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-        fOut.flush();
-        fOut.close(); //TODO: rotate 90 degrees
+        if(fileExists(tempImgName)) {
+            val profileImgFile = File(getExternalFilesDir(null), profileImgName)
+            val fOut = FileOutputStream(profileImgFile)
+            val bitmap = Util.getBitmap(this, tempImgUri)
+            val matrix = Matrix()
+            matrix.setRotate(-90f)
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true).compress(Bitmap.CompressFormat.JPEG, 85, fOut)
+            fOut.flush()
+            fOut.close()
+        }
 
         var name : String = nameView.text.toString()
         var email : String = emailView.text.toString()
@@ -148,10 +173,9 @@ class MainActivity : AppCompatActivity() {
             putString("major_key", major)
             apply()
         }
-
-
-        println("SAVED: " + name + "\n" + email + "\n" + phoneNumber + "\n" + gender + "\n" + classYear + "\n" + major)
-
+        //println("SAVED: " + name + "\n" + email + "\n" + phoneNumber + "\n" + gender + "\n" + classYear + "\n" + major)
     }
+
+
 
 }

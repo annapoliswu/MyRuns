@@ -30,13 +30,13 @@ object Util {
         }
     }
 
-    //gets bitmap from uri, corrects rotation, returns bitmap
+    //from uri to bitmap with corrected rotation
     fun getBitmap(context: Context, imgUri: Uri): Bitmap {
         var bitmap = BitmapFactory.decodeStream(context.contentResolver.openInputStream(imgUri))
         val matrix = Matrix()
         matrix.setRotate(90f)
-        var ret = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-        return ret
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
+
 
 }
