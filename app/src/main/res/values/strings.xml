@@ -18,4 +18,5 @@
     <string name="cancel_button">Cancel</string>
     <string name="change_button">Change</string>
     <string name="profile_preference_key">com.zw.PROFILE_PREFERENCE_KEY</string>
+
 </resources>
