@@ -2,6 +2,7 @@ package com.zw.myruns
 
 import android.Manifest
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tabLayout : TabLayout
     private lateinit var viewPager : ViewPager2
     private lateinit var fragments : ArrayList<Fragment>
+    private lateinit var tabLayoutMediator : TabLayoutMediator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +43,23 @@ class MainActivity : AppCompatActivity() {
 
         viewPager = findViewById(R.id.viewpager)
         tabLayout = findViewById(R.id.tab)
-        val fsa = ArrayListFragmentStateAdapter(this, fragments)
+        val fsa = ArrayListFragmentStateAdapter(this, fragments) //adapter tells viewpager how to render data
         viewPager.adapter = fsa
 
         val tabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy {
-            tab, position -> tab.text = tabNames[position]    //sets name of tabs
+            tab, position -> tab.text = tabNames[position]    //set names of tabs
         }
-        val tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager, tabConfigurationStrategy)
+        tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager, tabConfigurationStrategy) //wire together
         tabLayoutMediator.attach()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tabLayoutMediator.detach()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
 
 }

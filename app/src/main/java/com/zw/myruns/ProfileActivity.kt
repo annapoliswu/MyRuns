@@ -159,6 +159,7 @@ class ProfileActivity : AppCompatActivity() {
             gender = genderButton.text.toString()
         }
 
+        //TODO: companion object??
         with(sharedPref.edit()) {
             putString("name_key", name)
             putString("email_key", email)
