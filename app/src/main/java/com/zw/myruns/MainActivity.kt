@@ -30,8 +30,8 @@ class MainActivity : AppCompatActivity() {
         Util.checkPermissions(this, PERMISSIONS)
 
         val startFragment = StartFragment()
-        val historyFragment = StartFragment()
-        val settingsFragment = StartFragment()
+        val historyFragment = HistoryFragment()
+        val settingsFragment = SettingsFragment()
 
         fragments = ArrayList<Fragment>()
         fragments.add(startFragment)

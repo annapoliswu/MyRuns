@@ -36,53 +36,46 @@ class StartFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_start, container, false)
 
         inputTypeSpinner = view.findViewById(R.id.inputTypeSpinner)
-        activityTypeSpinner = view.findViewById(R.id.activityTypeSpinner)
-
-        inputTypeSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                Log.d("Input", parent.getItemAtPosition(position) as String)
-                // TODO input spinner item select
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // TODO input spinner nothing select
-            }
-        })
-
         inputTypeAdapter = ArrayAdapter<String>(requireContext() , android.R.layout.simple_spinner_item, inputTypes)
         inputTypeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
         inputTypeSpinner.adapter = inputTypeAdapter
 
-
-
-        activityTypeSpinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                Log.d("Activity", parent.getItemAtPosition(position) as String)
-                // TODO activity spinner item select
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // TODO activity spinner nothing select
-            }
-        })
-
+        activityTypeSpinner = view.findViewById(R.id.activityTypeSpinner)
         activityTypeAdapter = ArrayAdapter<String>(requireContext() , android.R.layout.simple_spinner_item, activityTypes)
         activityTypeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
         activityTypeSpinner.adapter = activityTypeAdapter
 
         startButton = view.findViewById(R.id.startButton)
         syncButton = view.findViewById(R.id.syncButton)
-        //TODO: start/sync button listeners
+
+        startButton.setOnClickListener(View.OnClickListener {
+
+            var inputType = inputTypeSpinner.getSelectedItem().toString()
+            var activityType = activityTypeSpinner.getSelectedItem().toString()
+
+            when(inputType){
+                "Manual Entry" -> {
+                    println("manual")
+                }
+                "GPS" ->{
+                    println("gps")
+                }
+                "Automatic" -> {
+                    println("auto")
+                }
+                else -> {
+                    println("not an input type")
+                }
+            }
+        })
+
+        syncButton.setOnClickListener(View.OnClickListener {
+            //TODO : Sync button listener
+        })
+
+
 
         return view
-    }
-
-    fun onStartClicked(view: View){
-        Log.d("Button", "Start pushed")
-    }
-
-    fun onSyncClicked(view: View){
-        Log.d("Button", "Sync pushed")
     }
 
 }

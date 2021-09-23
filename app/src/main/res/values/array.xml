@@ -2,7 +2,7 @@
 <resources>
 
     <string-array name="inputTypes">
-        <item>Manual Input</item>
+        <item>Manual Entry</item>
         <item>GPS</item>
         <item>Automatic</item>
     </string-array>

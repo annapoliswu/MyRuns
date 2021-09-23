@@ -16,7 +16,9 @@
             android:id="@+id/inputTypeSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:spinnerMode="dropdown"/>
+            android:spinnerMode="dropdown"
+            android:paddingVertical="@dimen/default_padding"
+            android:overlapAnchor="false"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,7 +27,9 @@
             android:id="@+id/activityTypeSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:spinnerMode="dropdown"/>
+            android:spinnerMode="dropdown"
+            android:paddingVertical="@dimen/default_padding"
+            android:overlapAnchor="false"/>
 
         <LinearLayout
             android:layout_width="match_parent"
