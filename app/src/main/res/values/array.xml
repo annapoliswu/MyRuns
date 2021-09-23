@@ -24,4 +24,14 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="unitsEntries">
+        <item>Metric (Kilometers)</item>
+        <item>Imperial (Miles)</item>
+    </string-array>
+
+    <string-array name="unitsValues">
+        <item>Kilometers</item>
+        <item>Miles</item>
+    </string-array>
+
 </resources>

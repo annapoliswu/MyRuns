@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Account Preferences">
+        <Preference
+            android:iconSpaceReserved="false"
+            android:key="profile"
+            android:title="User Profile"
+            android:summary="Name, email, class, etc">
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="http://web.cs.dartmouth.edu/" />
+        </Preference>
+
+        <CheckBoxPreference
+            android:iconSpaceReserved="false"
+            android:key="privacy"
+            android:title="Privacy Setting"
+            android:summary="Post your records anonymously"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Additional Settings">
+        <ListPreference
+            android:iconSpaceReserved="false"
+            android:key="units"
+            android:title="Units Preference"
+            android:summary="Units of measurement you want to use"
+            android:defaultValue="Miles"
+            android:entries="@array/unitsEntries"
+            android:entryValues="@array/unitsValues"/>
+
+        <EditTextPreference
+            android:iconSpaceReserved="false"
+            android:key="comments"
+            android:title="Comments"
+            android:summary="Please enter your comments"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Misc">
+        <Preference
+            android:iconSpaceReserved="false"
+            android:key="webpage"
+            android:title="Webpage"
+            android:summary="http://web.cs.dartmouth.edu/">
+
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="http://web.cs.dartmouth.edu/" />
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>
