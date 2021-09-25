@@ -1,23 +1,22 @@
 package com.zw.myruns
 
-import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import java.io.File
-import java.io.FileOutputStream
 
 
 //NOTE don't need to crop image for this class
@@ -42,6 +41,7 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_profile)
 
         //find views
@@ -62,8 +62,8 @@ class ProfileActivity : AppCompatActivity() {
 
         //load saved profile from sharedPref
         sharedPref = this.getSharedPreferences(
-                getString(R.string.profile_preference_key),
-                Context.MODE_PRIVATE
+            getString(R.string.profile_preference_key),
+            Context.MODE_PRIVATE
         )
         loadProfile()
 
@@ -78,7 +78,9 @@ class ProfileActivity : AppCompatActivity() {
         return File(getExternalFilesDir(null), imageName).exists()
     }
 
-    //safe set for photo using uri, checks if file at uri exists first
+    /**
+     * safe set for photo using uri, checks if file at uri exists first
+     */
     private fun setPhoto(imageName: String, imageUri: Uri){
         if( fileExists(imageName)) {
             photoView.setImageBitmap(Util.getBitmap(this, imageUri))
@@ -91,13 +93,43 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     fun onChangePhotoClicked(view: View){
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, tempImgUri)
-        activityResultLauncher.launch(intent)
+        var intent : Intent
+        val photoDialogOptions = arrayOf("Open Camera", "Select from Gallery")
+
+        var builder = AlertDialog.Builder(this)
+        builder.setTitle("Pick Profile Picture")
+            .setItems(photoDialogOptions)
+            { dialog, which ->
+                if( photoDialogOptions[which].equals("Open Camera") ) {
+                    intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, tempImgUri)
+                    camResultLauncher.launch(intent)
+                }else{
+                    intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    galleryResultLauncher.launch(intent)
+                }
+            }
+        var photoDialog = builder.create()
+        photoDialog.show()
+
     }
-    private val activityResultLauncher :  ActivityResultLauncher<Intent> = registerForActivityResult(
-            //parameters: contract (type input needed and type for result)
-            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult -> setPhoto(tempImgName, tempImgUri)
+
+
+    private val camResultLauncher :  ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if(result.resultCode == Activity.RESULT_OK){
+                setPhoto(tempImgName, tempImgUri)
+            }
+    }
+
+    private val galleryResultLauncher : ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()){result: ActivityResult ->
+            if(result.resultCode == Activity.RESULT_OK) {
+                val intentData = result.data
+                val uri = intentData?.data!!
+                Util.writeBitmap(this, tempImgName, uri, 180f)
+                setPhoto(tempImgName, tempImgUri)
+            }
     }
 
     fun onSaveClicked(view: View) {
@@ -136,14 +168,7 @@ class ProfileActivity : AppCompatActivity() {
     //saves the profile in SharedPreference object
     private fun saveProfile(){
         if(fileExists(tempImgName)) {
-            val profileImgFile = File(getExternalFilesDir(null), profileImgName)
-            val fOut = FileOutputStream(profileImgFile)
-            val bitmap = Util.getBitmap(this, tempImgUri)
-            val matrix = Matrix()
-            matrix.setRotate(-90f)
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true).compress(Bitmap.CompressFormat.JPEG, 85, fOut)
-            fOut.flush()
-            fOut.close()
+            Util.writeBitmap(this, profileImgName, tempImgUri, -90f)
         }
 
         var name : String = nameView.text.toString()
@@ -171,7 +196,6 @@ class ProfileActivity : AppCompatActivity() {
         }
         //println("SAVED: " + name + "\n" + email + "\n" + phoneNumber + "\n" + gender + "\n" + classYear + "\n" + major)
     }
-
 
 
 }

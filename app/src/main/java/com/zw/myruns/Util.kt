@@ -11,8 +11,11 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 object Util {
 
@@ -32,10 +35,29 @@ object Util {
 
     //from uri to bitmap with corrected rotation
     fun getBitmap(context: Context, imgUri: Uri): Bitmap {
-        var bitmap = BitmapFactory.decodeStream(context.contentResolver.openInputStream(imgUri))
+        var inputStream = context.contentResolver.openInputStream(imgUri)
+        var bitmap = BitmapFactory.decodeStream(inputStream)
         val matrix = Matrix()
         matrix.setRotate(90f)
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        var newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        inputStream?.close()
+        return newBitmap
+    }
+
+    //writes an image at uri to app storage
+    fun writeBitmap(context: Context, imgName: String, readUri: Uri, rotation : Float){
+        val tempImgFile = File(context.getExternalFilesDir(null), imgName)
+        val fOut = FileOutputStream(tempImgFile)
+        val bitmap = getBitmap(context, readUri)
+        val matrix = Matrix()
+        matrix.setRotate(rotation)
+        Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true).compress(
+            Bitmap.CompressFormat.JPEG,
+            70,
+            fOut
+        )
+        fOut.flush()
+        fOut.close()
     }
 
 
