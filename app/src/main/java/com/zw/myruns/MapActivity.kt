@@ -2,6 +2,7 @@ package com.zw.myruns
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 
 class MapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,5 +12,12 @@ class MapActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+    }
+
+    fun onSaveClicked(view :View){
+        finish()
+    }
+    fun onCancelClicked(view: View){
+        finish()
     }
 }

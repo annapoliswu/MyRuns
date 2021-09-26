@@ -7,30 +7,33 @@
     <ListView
         android:id="@+id/manualListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/manualButtons">
     </ListView>
+
     <LinearLayout
+        android:id="@+id/manualButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginVertical="@dimen/default_margin"
         android:layout_alignParentBottom="true"
-        >
+        android:layout_marginVertical="@dimen/default_margin"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/save_button"
-            android:onClick="onSaveClicked"
+            android:layout_marginRight="@dimen/default_margin"
             android:minWidth="125dp"
-            android:layout_marginRight="@dimen/default_margin"/>
+            android:onClick="onSaveClicked"
+            android:text="@string/save_button" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel_button"
+            android:minWidth="125dp"
             android:onClick="onCancelClicked"
-            android:minWidth="125dp"/>
+            android:text="@string/cancel_button" />
     </LinearLayout>
 
 </RelativeLayout>

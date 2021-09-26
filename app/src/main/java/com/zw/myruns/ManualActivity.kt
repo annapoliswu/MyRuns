@@ -12,7 +12,6 @@ import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.marginLeft
 import androidx.core.view.setPadding
 import java.util.*
 
@@ -82,8 +81,8 @@ class ManualActivity : AppCompatActivity() {
             when(position){
                 0 -> { dateDialog.show() }
                 1 -> { timeDialog.show() }
-                2 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> duration = str.toDouble() } }
-                3 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> distance = str.toDouble() } }
+                2 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> duration = str.toDouble() } }
+                3 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> distance = str.toDouble() } }
                 4 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> calories = str.toInt() } }
                 5 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> heartRate = str.toInt() } }
                 6 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_TEXT, "Note how your activity went") { str -> comment = str } }
@@ -92,10 +91,10 @@ class ManualActivity : AppCompatActivity() {
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 
+    /**
+     * for ease of making multiple input dialogs
+     */
     private fun makeDialog (title:String, inputType : Int, hint : String, func : (input: String) -> Unit){
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
@@ -111,14 +110,10 @@ class ManualActivity : AppCompatActivity() {
             DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })
         builder.show()
     }
-
     private fun makeDialog (title:String, inputType : Int, func : (input: String) -> Unit) {
         makeDialog(title, inputType, "", func)
     }
 
-    private fun setDuration(input : String){
-        duration = input.toDouble()
-    }
 
     fun onSaveClicked(view: View){
         println("duration: $duration")
@@ -127,5 +122,10 @@ class ManualActivity : AppCompatActivity() {
     fun onCancelClicked(view: View){
         finish()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
 
 }
