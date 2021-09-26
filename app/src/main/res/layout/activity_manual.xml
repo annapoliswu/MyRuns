@@ -1,18 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
+    <ListView
+        android:id="@+id/manualListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/default_padding">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginVertical="@dimen/default_margin"
+        android:layout_alignParentBottom="true"
+        >
 
-        <TextView
-            android:layout_width="match_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="manual activity"/>
+            android:text="@string/save_button"
+            android:onClick="onSaveClicked"
+            android:minWidth="125dp"
+            android:layout_marginRight="@dimen/default_margin"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_button"
+            android:onClick="onCancelClicked"
+            android:minWidth="125dp"/>
     </LinearLayout>
 
-</ScrollView>
+</RelativeLayout>
