@@ -54,21 +54,25 @@ class StartFragment : Fragment() {
 
             var inputType = inputTypeSpinner.getSelectedItem().toString()
             var activityType = activityTypeSpinner.getSelectedItem().toString()
+            var intent : Intent
 
             when(inputType){
                 "Manual Entry" -> {
-                    println("manual")
+                    intent = Intent(context, ManualActivity::class.java)
                 }
                 "GPS" ->{
-                    println("gps")
+                    intent = Intent(context, MapActivity::class.java)
                 }
                 "Automatic" -> {
-                    println("auto")
+                    intent = Intent(context, MapActivity::class.java)
                 }
                 else -> {
                     println("not an input type")
+                    intent = Intent(context, ManualActivity::class.java)
                 }
             }
+            intent.putExtra("ACTIVITY_TYPE", activityType)
+            startActivity(intent)
 
         })
 
