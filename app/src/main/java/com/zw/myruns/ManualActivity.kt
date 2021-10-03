@@ -16,6 +16,8 @@ import androidx.core.view.setPadding
 import java.util.*
 
 
+//TODO: Add more comments
+
 class ManualActivity : AppCompatActivity() {
     private lateinit var listView : ListView
     private val ENTRY_ITEMS = arrayOf(
@@ -39,18 +41,18 @@ class ManualActivity : AppCompatActivity() {
         setContentView(R.layout.activity_manual)
         listView = findViewById(R.id.manualListView)
 
-        var calendar = Calendar.getInstance()
-        var year = calendar.get(Calendar.YEAR)
-        var month = calendar.get(Calendar.MONTH)
-        var day = calendar.get(Calendar.DAY_OF_MONTH)
-        var hour = calendar.get(Calendar.HOUR_OF_DAY)
-        var minute = calendar.get(Calendar.MINUTE)
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
 
         val dateDialog = DatePickerDialog(
             this,
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            DatePickerDialog.OnDateSetListener { view, dateYear, monthOfYear, dayOfMonth ->
                 println(
-                    "${monthOfYear + 1}/$dayOfMonth/$year"
+                    "${monthOfYear + 1}/$dayOfMonth/$dateYear"
                 )
             },
             year,
@@ -58,6 +60,8 @@ class ManualActivity : AppCompatActivity() {
             day
         )
 
+
+        //TODO: some crash with this, ask TA??
         val timeDialog: TimePickerDialog = TimePickerDialog(
             this,
             TimePickerDialog.OnTimeSetListener { view, hour, minute ->
