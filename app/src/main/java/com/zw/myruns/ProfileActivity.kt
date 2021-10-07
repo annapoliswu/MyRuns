@@ -92,11 +92,12 @@ class ProfileActivity : AppCompatActivity() {
         tempImgFile.delete()
     }
 
+    //button function to branch to launch Camera or Gallery select
     fun onChangePhotoClicked(view: View){
         var intent : Intent
         val photoDialogOptions = arrayOf("Open Camera", "Select from Gallery")
 
-        var builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Pick Profile Picture")
             .setItems(photoDialogOptions)
             { dialog, which ->
@@ -109,19 +110,18 @@ class ProfileActivity : AppCompatActivity() {
                     galleryResultLauncher.launch(intent)
                 }
             }
-        var photoDialog = builder.create()
+        val photoDialog = builder.create()
         photoDialog.show()
 
     }
 
-
+    //on get photo result returned, set the profile picture
     private val camResultLauncher :  ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if(result.resultCode == Activity.RESULT_OK){
                 setPhoto(tempImgName, tempImgUri)
             }
     }
-
     private val galleryResultLauncher : ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){result: ActivityResult ->
             if(result.resultCode == Activity.RESULT_OK) {
@@ -131,6 +131,7 @@ class ProfileActivity : AppCompatActivity() {
                 setPhoto(tempImgName, tempImgUri)
             }
     }
+
 
     fun onSaveClicked(view: View) {
         saveProfile()
@@ -158,7 +159,7 @@ class ProfileActivity : AppCompatActivity() {
         classView.text = sharedPref.getString("class_key", defaultData)
         majorView.text = sharedPref.getString("major_key", defaultData)
 
-        var gender = sharedPref.getString("gender_key", defaultData)
+        val gender = sharedPref.getString("gender_key", defaultData)
         when {
             gender.equals("Female") -> genderView.check(R.id.profile_female)
             gender.equals("Male") -> genderView.check(R.id.profile_male)
@@ -171,16 +172,16 @@ class ProfileActivity : AppCompatActivity() {
             Util.writeBitmap(this, profileImgName, tempImgUri, -90f)
         }
 
-        var name : String = nameView.text.toString()
-        var email : String = emailView.text.toString()
-        var phoneNumber : String = phoneView.text.toString()
-        var classYear : String = classView.text.toString()
-        var major : String = majorView.text.toString()
+        val name : String = nameView.text.toString()
+        val email : String = emailView.text.toString()
+        val phoneNumber : String = phoneView.text.toString()
+        val classYear : String = classView.text.toString()
+        val major : String = majorView.text.toString()
 
         var gender = ""
-        var genderID = genderView.checkedRadioButtonId
+        val genderID = genderView.checkedRadioButtonId
         if(genderID != -1){
-            var genderButton : RadioButton = findViewById(genderID)
+            val genderButton : RadioButton = findViewById(genderID)
             gender = genderButton.text.toString()
         }
 

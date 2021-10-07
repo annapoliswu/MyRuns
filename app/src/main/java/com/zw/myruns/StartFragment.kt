@@ -13,7 +13,7 @@ import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceScreen
 
-
+// Fragment for deciding type of entry input: GPS, Automatic, Manual
 class StartFragment : Fragment() {
 
     private lateinit var inputTypeSpinner : Spinner
@@ -37,6 +37,7 @@ class StartFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_start, container, false)
 
+        //Dropdown setup
         inputTypeSpinner = view.findViewById(R.id.inputTypeSpinner)
         inputTypeAdapter = ArrayAdapter<String>(requireContext() , android.R.layout.simple_spinner_item, inputTypes)
         inputTypeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
@@ -47,6 +48,7 @@ class StartFragment : Fragment() {
         activityTypeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
         activityTypeSpinner.adapter = activityTypeAdapter
 
+        //Button setups with listeners
         startButton = view.findViewById(R.id.startButton)
         syncButton = view.findViewById(R.id.syncButton)
 

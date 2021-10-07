@@ -11,7 +11,7 @@ import android.widget.Button
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 
-
+// History of entries shown via here
 class HistoryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -11,8 +11,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import androidx.preference.PreferenceFragmentCompat
 
 
-//NOTE don't need to crop image for this class
-
+// Activity that shows on startup, handles the 3 tabs
 class MainActivity : AppCompatActivity() {
 
     private val PERMISSIONS = arrayOf(
@@ -32,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Util.checkPermissions(this, PERMISSIONS)
 
+        //Setup fragments for tabs
         val startFragment = StartFragment()
         val historyFragment = HistoryFragment()
         val settingsFragment = SettingsFragment()
@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         fragments.add(historyFragment)
         fragments.add(settingsFragment)
 
+        //Tabs setup
         viewPager = findViewById(R.id.viewpager)
         tabLayout = findViewById(R.id.tab)
         val fsa = ArrayListFragmentStateAdapter(this, fragments) //adapter tells viewpager how to render data

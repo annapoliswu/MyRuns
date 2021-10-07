@@ -16,7 +16,7 @@ import androidx.core.view.setPadding
 import java.util.*
 
 
-//TODO: Add more comments
+//Manual input for run entry
 
 class ManualActivity : AppCompatActivity() {
     private lateinit var listView : ListView
@@ -61,12 +61,12 @@ class ManualActivity : AppCompatActivity() {
         )
 
 
-        //TODO: some crash with this, ask TA??
+        //TODO: apparent crash, none on own device, ask TA later??
         val timeDialog: TimePickerDialog = TimePickerDialog(
             this,
-            TimePickerDialog.OnTimeSetListener { view, hour, minute ->
+            TimePickerDialog.OnTimeSetListener { view, dateHour, dateMinute ->
                 println(
-                    "${hour}:${minute}"
+                    "${dateHour}:${dateMinute}"
                 )
             },
             hour,
@@ -92,12 +92,11 @@ class ManualActivity : AppCompatActivity() {
                 6 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_TEXT, "Note how your activity went") { str -> comment = str } }
             }
         }
-
     }
 
 
     /**
-     * for ease of making multiple input dialogs
+     * For ease of making multiple input dialogs
      */
     private fun makeDialog (title:String, inputType : Int, hint : String, func : (input: String) -> Unit){
         val builder = AlertDialog.Builder(this)
@@ -114,6 +113,8 @@ class ManualActivity : AppCompatActivity() {
             DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })
         builder.show()
     }
+
+    // Dialog without hint
     private fun makeDialog (title:String, inputType : Int, func : (input: String) -> Unit) {
         makeDialog(title, inputType, "", func)
     }
