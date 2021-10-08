@@ -1,6 +1,7 @@
 package com.zw.myruns
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,7 @@ class HistoryFragment : Fragment() {
     private lateinit var viewModelFactory: ExerciseViewModelFactory
     private lateinit var exerciseViewModel: ExerciseViewModel
 
-    private lateinit var myListView: ListView
+    private lateinit var historyListView: ListView
     private lateinit var arrayList: ArrayList<ExerciseEntry>
     private lateinit var arrayAdapter: HistoryListAdapter
 
@@ -31,14 +32,16 @@ class HistoryFragment : Fragment() {
         viewModelFactory = ExerciseViewModelFactory(databaseDao)
         exerciseViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(ExerciseViewModel::class.java)
 
+        historyListView = view.findViewById(R.id.history_list)
         arrayList = ArrayList()
         arrayAdapter = HistoryListAdapter(requireActivity(), arrayList)
-        myListView.adapter = arrayAdapter
+        historyListView.adapter = arrayAdapter
 
         exerciseViewModel.allEntries.observe(requireActivity(), Observer{ changedList ->
             //aaa
             arrayAdapter.replace(changedList)
             arrayAdapter.notifyDataSetChanged()
+            Log.d("ViewModel", "Observed Entry Change")
         })
 
         return view

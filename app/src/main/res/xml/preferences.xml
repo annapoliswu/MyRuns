@@ -4,7 +4,7 @@
     <PreferenceCategory android:title="Account Preferences">
         <Preference
             android:iconSpaceReserved="false"
-            android:key="profile"
+            android:key="profile_key"
             android:title="User Profile"
             android:summary="Name, email, class, etc">
             <intent android:targetPackage="com.zw.myruns"
@@ -13,7 +13,7 @@
 
         <CheckBoxPreference
             android:iconSpaceReserved="false"
-            android:key="privacy"
+            android:key="privacy_key"
             android:title="Privacy Setting"
             android:summary="Post your records anonymously"/>
 
@@ -22,7 +22,7 @@
     <PreferenceCategory android:title="Additional Settings">
         <ListPreference
             android:iconSpaceReserved="false"
-            android:key="units"
+            android:key="units_key"
             android:title="Units Preference"
             android:summary="Units of measurement you want to use"
             android:defaultValue="Miles"
@@ -31,7 +31,7 @@
 
         <EditTextPreference
             android:iconSpaceReserved="false"
-            android:key="comments"
+            android:key="comments_key"
             android:title="Comments"
             android:summary="Please enter your comments"/>
 
@@ -40,7 +40,7 @@
     <PreferenceCategory android:title="Misc">
         <Preference
             android:iconSpaceReserved="false"
-            android:key="webpage"
+            android:key="webpage_key"
             android:title="Webpage"
             android:summary="http://web.cs.dartmouth.edu/">
 

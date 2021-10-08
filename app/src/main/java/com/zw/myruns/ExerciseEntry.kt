@@ -3,6 +3,7 @@ package com.zw.myruns
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import com.google.android.gms.maps.model.LatLng
 import java.util.*
 import kotlin.collections.ArrayList
@@ -15,42 +16,57 @@ import kotlin.collections.ArrayList
 data class ExerciseEntry(
 
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0L,
 
     @ColumnInfo(name = "input_type")
-    val inputType: Int,
+    var inputType: Int = 0,
 
     @ColumnInfo(name = "activity_type")
-    val activityType: String,
+    var activityType: String = "",
 
     @ColumnInfo(name = "date_time")
-    val dateTime: Calendar?,
+    var dateTime: String = "",
+    //var dateTime: Calendar? = null,
+    //TODO : correct data types, conversion, just testing now
 
     @ColumnInfo(name = "duration")
-    val duration: Int?,
+    var duration: Int = 0,
 
     @ColumnInfo(name = "distance")
-    val distance: Float?,
+    var distance: Float = 0F,
 
     @ColumnInfo(name = "average_pace")
-    val avgPace: Float?,
+    var avgPace: Float = 0F,
 
     @ColumnInfo(name = "average_speed")
-    val avgSpeed: Float?,
+    var avgSpeed: Float = 0F,
 
     @ColumnInfo(name = "calories")
-    val calories: Float?,
+    var calories: Float = 0F,
 
     @ColumnInfo(name = "climb")
-    val climb: Float?,
+    var climb: Float = 0F,
 
     @ColumnInfo(name = "heart_rate")
-    val heartRate: Int?,
+    var heartRate: Int = 0,
 
     @ColumnInfo(name = "comment")
-    val comment: String?,
+    var comment: String = "",
 
     @ColumnInfo(name = "location_list")
-    val locationList: ArrayList<LatLng>?
+    var locationList: String = ""
+    //var locationList: ArrayList<LatLng>? = null
+
 
 )
+object DateConverter {
+    @TypeConverter
+    fun toDate(dateLong: Long?): Date? {
+        return dateLong?.let { Date(it) }
+    }
+
+    @TypeConverter
+    fun fromDate(date: Date?): Long? {
+        return date?.time
+    }
+}

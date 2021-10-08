@@ -21,6 +21,24 @@ class HistoryListAdapter (val context: Context, var entriesList: List<ExerciseEn
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         //TODO: exercise list adapter view / layout
+        val view = View.inflate(context, R.layout.layout_history_list_adapter, null)
+        val listItemTitle = view.findViewById<TextView>(R.id.entry_title) as TextView
+        val listItemDetail = view.findViewById<TextView>(R.id.entry_detail) as TextView
+
+        val sharedPref = context.getSharedPreferences(
+            context.getString(R.string.settings_preference_key),
+            Context.MODE_PRIVATE
+        )
+
+        val units = sharedPref.getString("units_key", "Miles")
+        val comment = sharedPref.getString("comments_key", "No comment")
+        val postAnonymously = sharedPref.getBoolean("privacy_key", true)
+
+        val listItem = entriesList.get(position)
+        listItemTitle.text = "ID-${listItem.id} INPUT-${listItem.inputType} ACTIVITY-${listItem.activityType}"
+        listItemDetail.text = "Units pref test: ${units}"
+
+
         /*
         //for reference
         val view: View = View.inflate(context, R.layout.layout_adapter,null)
@@ -34,7 +52,7 @@ class HistoryListAdapter (val context: Context, var entriesList: List<ExerciseEn
         return view
 
          */
-        return convertView!!
+        return view
     }
 
 

@@ -13,6 +13,7 @@ import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
+import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 
@@ -35,11 +36,18 @@ class ManualActivity : AppCompatActivity() {
     private var calories = 0
     private var heartRate = 0
     private var comment = ""
+    private lateinit var exerciseViewModel : ExerciseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manual)
         listView = findViewById(R.id.manualListView)
+
+        //TODO : probably move to main to simplify, and pass intents
+        val database = ExerciseDatabase.getInstance(this) //dc is initialized and connects with DAO here?
+        val databaseDao = database.exerciseDatabaseDao
+        val viewModelFactory = ExerciseViewModelFactory(databaseDao)
+        exerciseViewModel = ViewModelProvider(this , viewModelFactory).get(ExerciseViewModel::class.java)
 
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -122,6 +130,12 @@ class ManualActivity : AppCompatActivity() {
 
     fun onSaveClicked(view: View){
         println("duration: $duration")
+
+        val exerciseEntry = ExerciseEntry()
+        exerciseEntry.inputType = 1
+        exerciseEntry.activityType = "Running"
+        exerciseViewModel.insert(exerciseEntry)
+
         finish()
     }
     fun onCancelClicked(view: View){

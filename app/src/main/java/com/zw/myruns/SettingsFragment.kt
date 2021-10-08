@@ -1,5 +1,6 @@
 package com.zw.myruns
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,13 +12,17 @@ import android.widget.Button
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 
 // For display of various other settings
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences, rootKey)
         //TODO: createprefs
+        val manager: PreferenceManager = preferenceManager
+        manager.sharedPreferencesName = getString(R.string.settings_preference_key)
+        //manager.setSharedPreferencesMode(Context. )
+        setPreferencesFromResource(R.xml.preferences, rootKey)
     }
 
 
