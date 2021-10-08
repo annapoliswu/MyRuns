@@ -62,7 +62,7 @@ class ManualActivity : AppCompatActivity() {
 
 
         //TODO: apparent crash, none on own device, ask TA later??
-        val timeDialog: TimePickerDialog = TimePickerDialog(
+        val timeDialog = TimePickerDialog(
             this,
             TimePickerDialog.OnTimeSetListener { view, dateHour, dateMinute ->
                 println(

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
  * Defines how the application will interact with the database
  * Skipping repo, connection straight from dao
  */
-class ExerciseViewModel(private val exerciseDatabaseDao: ExerciseDatabaseDao) {
+class ExerciseViewModel(private val exerciseDatabaseDao: ExerciseDatabaseDao) : ViewModel() {
 
     val allEntries: LiveData<List<ExerciseEntry>> = exerciseDatabaseDao.getAllEntries().asLiveData()
 

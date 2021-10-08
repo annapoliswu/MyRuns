@@ -54,9 +54,9 @@ class StartFragment : Fragment() {
 
         startButton.setOnClickListener(View.OnClickListener {
 
-            var inputType = inputTypeSpinner.getSelectedItem().toString()
-            var activityType = activityTypeSpinner.getSelectedItem().toString()
-            var intent : Intent
+            val inputType = inputTypeSpinner.getSelectedItem().toString()
+            val activityType = activityTypeSpinner.getSelectedItem().toString()
+            val intent : Intent
 
             when(inputType){
                 "Manual Entry" -> {
