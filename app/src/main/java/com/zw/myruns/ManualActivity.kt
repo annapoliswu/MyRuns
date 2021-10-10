@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 
-//Manual input for run entry
+//Manual input for exercise entry
 
 class ManualActivity : AppCompatActivity() {
     private lateinit var listView : ListView
@@ -40,6 +40,8 @@ class ManualActivity : AppCompatActivity() {
 
     private lateinit var inputType : String
     private lateinit var activityType : String
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,19 +134,13 @@ class ManualActivity : AppCompatActivity() {
 
 
     fun onSaveClicked(view: View){
-        println("duration: $duration")
-
-        //val exerciseEntry = ExerciseEntry()
-        //exerciseEntry.dateTime = Util.calendarToString(calendar)
-        //exerciseViewModel.insert(exerciseEntry)
-
         val dateTime = Util.calendarToString(calendar)
         val intent = Util.createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment)
         setResult(Activity.RESULT_OK, intent)
-
         finish()
     }
     fun onCancelClicked(view: View){
+        setResult(Activity.RESULT_CANCELED)
         finish()
     }
 

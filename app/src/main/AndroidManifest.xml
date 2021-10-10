@@ -14,27 +14,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyRuns">
-
-        <activity android:name=".ManualActivity"
-            android:label="Manual Entry">
-        </activity>
-
-        <activity android:name=".MapActivity"
-            android:label="Map">
-        </activity>
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".ExerciseDisplayActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ManualActivity"
+            android:label="Manual Entry"></activity>
+        <activity
+            android:name=".MapActivity"
+            android:label="Map"></activity>
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ProfileActivity"
+        <activity
+            android:name=".ProfileActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

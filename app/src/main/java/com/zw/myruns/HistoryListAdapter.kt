@@ -5,6 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import android.content.Intent
+
+
+
 
 class HistoryListAdapter (val context: Context, var entriesList: List<ExerciseEntry>) : BaseAdapter(){
     override fun getCount(): Int {
@@ -37,6 +41,16 @@ class HistoryListAdapter (val context: Context, var entriesList: List<ExerciseEn
         val listItem = entriesList.get(position)
         listItemTitle.text = "ID-${listItem.id} INPUT-${listItem.inputType} ACTIVITY-${listItem.activityType}"
         listItemDetail.text = "Units pref test: ${units}"
+
+
+        view.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(view: View?) {
+                val intent = Intent(context, ExerciseDisplayActivity::class.java)
+                intent.putExtra("entry_id", listItem.id)
+                context.startActivity(intent)
+            }
+        })
+
 
 
         /*
