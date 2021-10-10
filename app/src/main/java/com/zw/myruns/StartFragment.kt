@@ -1,5 +1,6 @@
 package com.zw.myruns
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceScreen
 
 // Fragment for deciding type of entry input: GPS, Automatic, Manual
@@ -26,11 +30,29 @@ class StartFragment : Fragment() {
 
     private lateinit var startButton : Button
     private lateinit var syncButton : Button
+    private lateinit var resultLauncher : ActivityResultLauncher<Intent>
+
+    private lateinit var exerciseViewModel : ExerciseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inputTypes = resources.getStringArray(R.array.inputTypes)
         activityTypes = resources.getStringArray(R.array.activityTypes)
+
+        //database setup
+        val database = ExerciseDatabase.getInstance(requireContext())
+        val databaseDao = database.exerciseDatabaseDao
+        val viewModelFactory = ExerciseViewModelFactory(databaseDao)
+        exerciseViewModel = ViewModelProvider(this , viewModelFactory).get(ExerciseViewModel::class.java)
+
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent: Intent = result.data!!
+                exerciseViewModel.insert(Util.getEntryFromIntent(intent))
+                println("got result")
+            }
+        }
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -73,8 +95,12 @@ class StartFragment : Fragment() {
                     intent = Intent(context, ManualActivity::class.java)
                 }
             }
-            intent.putExtra("ACTIVITY_TYPE", activityType)
-            startActivity(intent)
+
+
+            intent.putExtra("activity_type", activityType)
+            intent.putExtra("input_type", inputType)
+            //startActivity(intent)
+            resultLauncher.launch(intent)
 
         })
 
@@ -86,5 +112,6 @@ class StartFragment : Fragment() {
 
         return view
     }
+
 
 }

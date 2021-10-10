@@ -1,8 +1,8 @@
 package com.zw.myruns
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,6 +14,9 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -58,6 +61,78 @@ object Util {
         )
         fOut.flush()
         fOut.close()
+    }
+
+    fun calendarToString(cal : Calendar):String{
+        val sdf: DateFormat = SimpleDateFormat("MM/dd/yyyy, h:mm a")
+        return sdf.format(cal.time)
+    }
+
+    //functions for easy exercise entry passing between various map/manual activities and start fragment
+    fun createEntryIntent(inputType: String,
+                          activityType: String,
+                          dateTime : String,
+                          duration : Float,
+                          distance : Float,
+                          calories : Int,
+                          heartRate : Int,
+                          comment: String,
+                          climb : Float,
+                          avgPace : Float,
+                          avgSpeed : Float,
+                          locations : String ): Intent {
+
+        val intent = Intent()
+        intent.putExtra("input_type", inputType)
+        intent.putExtra("activity_type", activityType)
+        intent.putExtra("date_time", dateTime)
+        intent.putExtra("duration", duration)
+        intent.putExtra("distance", distance)
+        intent.putExtra("calories", calories)
+        intent.putExtra("heart_rate", heartRate)
+        intent.putExtra("comment", comment)
+        intent.putExtra("climb", climb)
+        intent.putExtra("average_pace", avgPace)
+        intent.putExtra("average_speed", avgSpeed)
+        intent.putExtra("locations", locations)
+
+        return intent
+    }
+
+    fun createEntryIntent(
+        inputType: String,
+        activityType: String,
+        dateTime: String,
+        duration: Float,
+        distance: Float,
+        calories: Int,
+        heartRate: Int,
+        comment: String) : Intent{
+
+        return createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment, 0F, 0F, 0F, "")
+    }
+
+    //ease of use function to convert intent to a database entry
+    fun getEntryFromIntent(intent : Intent): ExerciseEntry{
+        val ee = ExerciseEntry()
+        val extras = intent.extras
+        if(extras != null) {
+            ee.inputType = extras.getString("input_type", "")
+            ee.activityType = extras.getString("activity_type", "")
+            ee.dateTime = extras.getString("date_time", "")
+            ee.duration = extras.getFloat("duration", 0F)
+            ee.distance = extras.getFloat("distance", 0F)
+            ee.calories = extras.getInt("calories", 0)
+            ee.heartRate = extras.getInt("heart_rate", 0)
+            ee.comment = extras.getString("comment", "")
+            ee.climb = extras.getFloat("climb", 0F)
+            ee.avgPace = extras.getFloat("average_pace", 0F)
+            ee.avgSpeed = extras.getFloat("average_speed", 0F)
+            ee.locations = extras.getString("locations", "")
+        }else{
+            println("EXTRAS NULL!")
+        }
+        return ee
     }
 
 

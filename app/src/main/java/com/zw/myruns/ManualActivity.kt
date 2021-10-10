@@ -1,5 +1,6 @@
 package com.zw.myruns
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.DialogInterface
@@ -30,26 +31,28 @@ class ManualActivity : AppCompatActivity() {
         "Heart Rate",
         "Comment"
     )
-    private lateinit var durationEditText: EditText
-    private var duration = 0.0
-    private var distance = 0.0
+    private lateinit var calendar : Calendar
+    private var duration = 0F
+    private var distance = 0F
     private var calories = 0
     private var heartRate = 0
     private var comment = ""
-    private lateinit var exerciseViewModel : ExerciseViewModel
+
+    private lateinit var inputType : String
+    private lateinit var activityType : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manual)
         listView = findViewById(R.id.manualListView)
 
-        //TODO : probably move to main to simplify, and pass intents
-        val database = ExerciseDatabase.getInstance(this) //dc is initialized and connects with DAO here?
-        val databaseDao = database.exerciseDatabaseDao
-        val viewModelFactory = ExerciseViewModelFactory(databaseDao)
-        exerciseViewModel = ViewModelProvider(this , viewModelFactory).get(ExerciseViewModel::class.java)
+        val extras = intent.extras
+        if(extras != null){
+            activityType = extras.getString("activity_type", "")
+            inputType = extras.getString("input_type", "")
+        }
 
-        val calendar = Calendar.getInstance()
+        calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
@@ -93,10 +96,10 @@ class ManualActivity : AppCompatActivity() {
             when(position){
                 0 -> { dateDialog.show() }
                 1 -> { timeDialog.show() }
-                2 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> duration = str.toDouble() } }
-                3 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> distance = str.toDouble() } }
-                4 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> calories = str.toInt() } }
-                5 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> heartRate = str.toInt() } }
+                2 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> if(str.isNotBlank()){duration = str.toFloat()} } }
+                3 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL) { str -> if(str.isNotBlank()){distance = str.toFloat()} }  }
+                4 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> if(str.isNotBlank()){calories = str.toInt()} }  }
+                5 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_NUMBER) { str -> if(str.isNotBlank()){heartRate = str.toInt()} }  }
                 6 -> { makeDialog(ENTRY_ITEMS[position], InputType.TYPE_CLASS_TEXT, "Note how your activity went") { str -> comment = str } }
             }
         }
@@ -131,10 +134,13 @@ class ManualActivity : AppCompatActivity() {
     fun onSaveClicked(view: View){
         println("duration: $duration")
 
-        val exerciseEntry = ExerciseEntry()
-        exerciseEntry.inputType = 1
-        exerciseEntry.activityType = "Running"
-        exerciseViewModel.insert(exerciseEntry)
+        //val exerciseEntry = ExerciseEntry()
+        //exerciseEntry.dateTime = Util.calendarToString(calendar)
+        //exerciseViewModel.insert(exerciseEntry)
+
+        val dateTime = Util.calendarToString(calendar)
+        val intent = Util.createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment)
+        setResult(Activity.RESULT_OK, intent)
 
         finish()
     }

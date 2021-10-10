@@ -38,14 +38,15 @@ class HistoryFragment : Fragment() {
         historyListView.adapter = arrayAdapter
 
         exerciseViewModel.allEntries.observe(requireActivity(), Observer{ changedList ->
-            //aaa
             arrayAdapter.replace(changedList)
             arrayAdapter.notifyDataSetChanged()
             Log.d("ViewModel", "Observed Entry Change")
         })
 
+
         return view
     }
+
 
 
 }

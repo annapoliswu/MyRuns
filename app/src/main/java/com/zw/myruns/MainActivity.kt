@@ -9,6 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import androidx.preference.PreferenceFragmentCompat
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 
 
 // Activity that shows on startup, handles the 3 tabs
@@ -46,6 +47,22 @@ class MainActivity : AppCompatActivity() {
         tabLayout = findViewById(R.id.tab)
         val fsa = ArrayListFragmentStateAdapter(this, fragments) //adapter tells viewpager how to render data
         viewPager.adapter = fsa
+
+        //to make sure tabs update for live data changes from other tabs
+        viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            }
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                fsa.notifyItemChanged(position)
+            }
+        })
 
         val tabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy {
             tab, position -> tab.text = tabNames[position]    //set names of tabs
