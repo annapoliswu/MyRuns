@@ -30,7 +30,7 @@
             android:textStyle="bold"
             android:textSize="@dimen/bold_text_size"/>
         <TextView
-            android:id="@+id/actvityTypeTV"
+            android:id="@+id/activityTypeTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="place holder"
@@ -121,6 +121,28 @@
             android:text="place holder"
             android:textSize="@dimen/default_text_size"
             android:layout_marginBottom="@dimen/default_margin"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginVertical="@dimen/default_margin"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/default_margin"
+                android:minWidth="125dp"
+                android:onClick="onDeleteClicked"
+                android:text="Delete" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="125dp"
+                android:onClick="onBackClicked"
+                android:text="Back" />
+        </LinearLayout>
 
     </LinearLayout>
 

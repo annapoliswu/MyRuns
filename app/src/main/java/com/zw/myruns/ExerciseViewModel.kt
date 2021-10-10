@@ -29,6 +29,7 @@ class ExerciseViewModel(private val exerciseDatabaseDao: ExerciseDatabaseDao) : 
             CoroutineScope(Dispatchers.IO).launch {
                 exerciseDatabaseDao.deleteEntry(id)
             }
+            //println("DELETED")
         }
     }
 
@@ -37,6 +38,7 @@ class ExerciseViewModel(private val exerciseDatabaseDao: ExerciseDatabaseDao) : 
             exerciseDatabaseDao.deleteAllEntries()
         }
     }
+
 
 }
 
