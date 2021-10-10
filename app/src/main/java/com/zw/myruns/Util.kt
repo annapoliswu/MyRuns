@@ -68,6 +68,8 @@ object Util {
         return sdf.format(cal.time)
     }
 
+
+
     //functions for easy exercise entry passing between various map/manual activities and start fragment
     fun createEntryIntent(inputType: String,
                           activityType: String,

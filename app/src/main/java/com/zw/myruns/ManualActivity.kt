@@ -15,7 +15,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import androidx.lifecycle.ViewModelProvider
+import java.time.DayOfWeek
+import java.time.MonthDay
+import java.time.YearMonth
 import java.util.*
+import kotlin.properties.Delegates
 
 
 //Manual input for exercise entry
@@ -32,6 +36,13 @@ class ManualActivity : AppCompatActivity() {
         "Comment"
     )
     private lateinit var calendar : Calendar
+    private lateinit var pickedCalendar: Calendar
+    private var year by Delegates.notNull<Int>()
+    private var month by Delegates.notNull<Int>()
+    private var day by Delegates.notNull<Int>()
+    private var hour by Delegates.notNull<Int>()
+    private var minute by Delegates.notNull<Int>()
+
     private var duration = 0F
     private var distance = 0F
     private var calories = 0
@@ -40,6 +51,9 @@ class ManualActivity : AppCompatActivity() {
 
     private lateinit var inputType : String
     private lateinit var activityType : String
+
+    private lateinit var dateDialog: DatePickerDialog
+    private lateinit var timeDialog: TimePickerDialog
 
 
 
@@ -55,32 +69,29 @@ class ManualActivity : AppCompatActivity() {
         }
 
         calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
+        pickedCalendar = Calendar.getInstance()
+        year = calendar.get(Calendar.YEAR)
+        month = calendar.get(Calendar.MONTH)
+        day = calendar.get(Calendar.DAY_OF_MONTH)
+        hour = calendar.get(Calendar.HOUR_OF_DAY)
+        minute = calendar.get(Calendar.MINUTE)
 
-        val dateDialog = DatePickerDialog(
+        dateDialog = DatePickerDialog(
             this,
             DatePickerDialog.OnDateSetListener { view, dateYear, monthOfYear, dayOfMonth ->
-                println(
-                    "${monthOfYear + 1}/$dayOfMonth/$dateYear"
-                )
+                pickedCalendar.set(dateYear, monthOfYear, dayOfMonth)
             },
             year,
             month,
             day
         )
 
-
         //TODO: apparent crash, none on own device, ask TA later??
-        val timeDialog = TimePickerDialog(
+        timeDialog = TimePickerDialog(
             this,
             TimePickerDialog.OnTimeSetListener { view, dateHour, dateMinute ->
-                println(
-                    "${dateHour}:${dateMinute}"
-                )
+                pickedCalendar.set(Calendar.HOUR, dateHour)
+                pickedCalendar.set(Calendar.MINUTE, dateMinute)
             },
             hour,
             minute,
@@ -134,7 +145,7 @@ class ManualActivity : AppCompatActivity() {
 
 
     fun onSaveClicked(view: View){
-        val dateTime = Util.calendarToString(calendar)
+        val dateTime = Util.calendarToString(pickedCalendar)
         val intent = Util.createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment)
         setResult(Activity.RESULT_OK, intent)
         finish()
