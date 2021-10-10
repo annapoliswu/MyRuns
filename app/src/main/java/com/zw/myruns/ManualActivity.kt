@@ -37,11 +37,6 @@ class ManualActivity : AppCompatActivity() {
     )
     private lateinit var calendar : Calendar
     private lateinit var pickedCalendar: Calendar
-    private var year by Delegates.notNull<Int>()
-    private var month by Delegates.notNull<Int>()
-    private var day by Delegates.notNull<Int>()
-    private var hour by Delegates.notNull<Int>()
-    private var minute by Delegates.notNull<Int>()
 
     private var duration = 0F
     private var distance = 0F
@@ -70,11 +65,11 @@ class ManualActivity : AppCompatActivity() {
 
         calendar = Calendar.getInstance()
         pickedCalendar = Calendar.getInstance()
-        year = calendar.get(Calendar.YEAR)
-        month = calendar.get(Calendar.MONTH)
-        day = calendar.get(Calendar.DAY_OF_MONTH)
-        hour = calendar.get(Calendar.HOUR_OF_DAY)
-        minute = calendar.get(Calendar.MINUTE)
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
 
         dateDialog = DatePickerDialog(
             this,
