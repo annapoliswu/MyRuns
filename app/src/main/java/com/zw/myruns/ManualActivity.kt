@@ -63,6 +63,7 @@ class ManualActivity : AppCompatActivity() {
             inputType = extras.getString("input_type", "")
         }
 
+        //get current system date for picker dialogs
         calendar = Calendar.getInstance()
         pickedCalendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -80,8 +81,6 @@ class ManualActivity : AppCompatActivity() {
             month,
             day
         )
-
-        //TODO: apparent crash, none on own device, ask TA later??
         timeDialog = TimePickerDialog(
             this,
             TimePickerDialog.OnTimeSetListener { view, dateHour, dateMinute ->
@@ -94,6 +93,7 @@ class ManualActivity : AppCompatActivity() {
         )
 
 
+        //programmatically add input popup dialogs to list items
         val arrayAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
             this,
             android.R.layout.simple_list_item_1,
@@ -112,6 +112,7 @@ class ManualActivity : AppCompatActivity() {
             }
         }
     }
+
 
 
     /**

@@ -194,7 +194,7 @@ class ProfileActivity : AppCompatActivity() {
             putString("major_key", major)
             apply()
         }
-        //println("SAVED: " + name + "\n" + email + "\n" + phoneNumber + "\n" + gender + "\n" + classYear + "\n" + major)
+
     }
 
 

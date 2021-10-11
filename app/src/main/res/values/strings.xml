@@ -19,5 +19,5 @@
     <string name="change_button">Change</string>
     <string name="profile_preference_key">com.zw.PROFILE_PREFERENCE_KEY</string>
     <string name="settings_preference_key">com.zw.SETTINGS_PREFERENCE_KEY</string>
-
+    <string name="default_units">Miles</string>
 </resources>

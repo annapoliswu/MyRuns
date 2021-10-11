@@ -11,15 +11,22 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.room.TypeConverter
+import com.google.android.gms.common.util.ArrayUtils.toArrayList
+import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
+import java.lang.reflect.Type
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import kotlin.collections.ArrayList
 
+/**
+ * Bunch of standard utility and conversion functions to use across Activities
+ */
 object Util {
 
     //checks an array of permissions and asks user for permission if one is missing
@@ -38,11 +45,11 @@ object Util {
 
     //from uri to bitmap with corrected rotation
     fun getBitmap(context: Context, imgUri: Uri): Bitmap {
-        var inputStream = context.contentResolver.openInputStream(imgUri)
-        var bitmap = BitmapFactory.decodeStream(inputStream)
+        val inputStream = context.contentResolver.openInputStream(imgUri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
         val matrix = Matrix()
         matrix.setRotate(90f)
-        var newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        val newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
         inputStream?.close()
         return newBitmap
     }
@@ -82,7 +89,7 @@ object Util {
                           climb : Float,
                           avgPace : Float,
                           avgSpeed : Float,
-                          locations : String ): Intent {
+                          locations : ArrayList<LatLng> ): Intent {
 
         val intent = Intent()
         intent.putExtra("input_type", inputType)
@@ -111,10 +118,12 @@ object Util {
         heartRate: Int,
         comment: String) : Intent{
 
-        return createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment, 0F, 0F, 0F, "")
+        return createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment, 0F, 0F, 0F,
+            ArrayList<LatLng>()
+        )
     }
 
-    //ease of use function to convert intent to a database entry
+    //Ease of use function to convert intent to a database entry
     fun getEntryFromIntent(intent : Intent): ExerciseEntry{
         val ee = ExerciseEntry()
         val extras = intent.extras
@@ -130,12 +139,50 @@ object Util {
             ee.climb = extras.getFloat("climb", 0F)
             ee.avgPace = extras.getFloat("average_pace", 0F)
             ee.avgSpeed = extras.getFloat("average_speed", 0F)
-            ee.locations = extras.getString("locations", "")
+            ee.locations = extras.getParcelableArrayList("locations")!!
         }else{
             println("EXTRAS NULL!")
         }
         return ee
     }
 
+
+    //For consistent conversions across Activities
+    fun toArrayList(json : String ): ArrayList<LatLng>{
+        val gson = Gson()
+        val listType: Type = object : TypeToken<ArrayList<LatLng>>() {}.type
+        val array: ArrayList<LatLng> = gson.fromJson(json, listType)
+        return array
+    }
+    fun fromArrayList(array : ArrayList<LatLng>): String{
+        val gson = Gson()
+        val listType: Type = object : TypeToken<ArrayList<LatLng>>() {}.type
+        val json: String = gson.toJson(array, listType)
+        return json
+    }
+
+
+    //unit conversions
+    fun milesToKm(miles: Float):Float{
+        val km = miles * 1.609344F
+        return km
+    }
+    fun kmToMiles(km : Float):Float{
+        val miles = km / 1.609344F
+        return miles
+    }
+
+
+    //given minutes in a float, return just minutes
+    fun getMinutes(duration: Float): Int{
+        return duration.toInt()
+    }
+
+    //given minutes in a float, return just seconds
+    fun getSeconds(duration : Float): Int{
+        val minutes = duration.toInt()
+        val seconds = ( 60 * (duration - minutes)).toInt()
+        return seconds
+    }
 
 }

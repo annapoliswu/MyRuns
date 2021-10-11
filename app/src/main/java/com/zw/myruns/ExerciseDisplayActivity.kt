@@ -1,5 +1,6 @@
 package com.zw.myruns
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -11,6 +12,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlin.properties.Delegates
 
+/**
+ * Activity that pops up onClick for every ExerciseEntry in the History list
+ * Shows all information for ExerciseEntry in textviews
+ */
 class ExerciseDisplayActivity : AppCompatActivity() {
 
     lateinit var inputTypeTV: TextView
@@ -29,6 +34,7 @@ class ExerciseDisplayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exercise_display)
 
+        //get text views
         inputTypeTV = findViewById(R.id.inputTypeTV)
         activityTypeTV = findViewById(R.id.activityTypeTV)
         dateTimeTV = findViewById(R.id.dateTimeTV)
@@ -38,24 +44,42 @@ class ExerciseDisplayActivity : AppCompatActivity() {
         heartRateTV = findViewById(R.id.heartRateTV)
         commentTV = findViewById(R.id.commentTV)
 
+        //get database instance
         val database = ExerciseDatabase.getInstance(this) //dc is initialized and connects with DAO here?
         val databaseDao = database.exerciseDatabaseDao
         val viewModelFactory = ExerciseViewModelFactory(databaseDao)
         exerciseViewModel = ViewModelProvider(this, viewModelFactory).get(ExerciseViewModel::class.java)
 
+        //format data to display and set textViews
         val extras = intent.extras
         if(extras != null){
             id = extras.getLong("entry_id")
             exerciseViewModel.allEntries.observe(this, Observer{ changedList ->  //NOTE: HAVE to access list through observe
                 val entry = changedList.find { ee -> ee.id == id }
+
+                val sharedPref = getSharedPreferences(
+                    getString(R.string.settings_preference_key),
+                    Context.MODE_PRIVATE
+                )
+                val units = sharedPref.getString("units_key", getString(R.string.default_units))
+
                 if (entry != null) {
+                    val distanceInUnitsPreferred = when {
+                        units.equals("Miles") -> {
+                            entry.distance
+                        }
+                        else -> {
+                            Util.milesToKm(entry.distance)
+                        }
+                    }
+
                     inputTypeTV.text = entry.inputType
                     activityTypeTV.text = entry.activityType
                     dateTimeTV.text = entry.dateTime
-                    (entry.duration.toString() + " minutes").also { durationTV.text = it } //TODO: minute fraction
-                    (entry.distance.toString() + " miles").also { distanceTV.text = it } //TODO: miles/km conversion
-                    (entry.calories.toString() + " cals").also { caloriesTV.text = it }
-                    (entry.heartRate.toString() + " bpm").also { heartRateTV.text = it }
+                    durationTV.text = "${Util.getMinutes(entry.duration)} min, ${Util.getSeconds(entry.duration)} sec"
+                    distanceTV.text = "${String.format("%.2f", distanceInUnitsPreferred)} ${units!!.lowercase()}"
+                    caloriesTV.text = "${entry.calories} cals"
+                    heartRateTV.text = "${entry.heartRate} bpm"
                     commentTV.text = entry.comment
                 }
             })
@@ -74,7 +98,6 @@ class ExerciseDisplayActivity : AppCompatActivity() {
     fun onBackClicked(view: View){
         finish()
     }
-
 
 
 }

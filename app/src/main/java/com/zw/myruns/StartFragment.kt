@@ -7,17 +7,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceScreen
 
-// Fragment for deciding type of entry input: GPS, Automatic, Manual
+/*  Fragment for deciding type of entry input: GPS, Automatic, Manual
+ *  Exercise entry data are returned from these activities and writes to the database are all handled here
+ */
 class StartFragment : Fragment() {
 
     private lateinit var inputTypeSpinner : Spinner
@@ -45,11 +44,15 @@ class StartFragment : Fragment() {
         val viewModelFactory = ExerciseViewModelFactory(databaseDao)
         exerciseViewModel = ViewModelProvider(this , viewModelFactory).get(ExerciseViewModel::class.java)
 
+        //takes intent from other activities and posts a ExerciseEntry to database
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val intent: Intent = result.data!!
-                exerciseViewModel.insert(Util.getEntryFromIntent(intent))
-                println("got result")
+                val entry = Util.getEntryFromIntent(intent)
+                exerciseViewModel.insert(entry)
+                val toast = Toast.makeText(context, "Saved entry #${entry.id}", Toast.LENGTH_SHORT)
+                toast.show()
+                println("Got result with intent, in HistoryListAdapter")
             }
         }
 
@@ -99,7 +102,6 @@ class StartFragment : Fragment() {
 
             intent.putExtra("activity_type", activityType)
             intent.putExtra("input_type", inputType)
-            //startActivity(intent)
             resultLauncher.launch(intent)
 
         })
