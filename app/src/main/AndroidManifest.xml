@@ -16,7 +16,8 @@
         android:theme="@style/Theme.MyRuns">
         <activity
             android:name=".ExerciseDisplayActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Light.NoActionBar"/>
         <activity
             android:name=".ManualActivity"
             android:label="Manual Entry"></activity>

@@ -20,7 +20,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val manager: PreferenceManager = preferenceManager
         manager.sharedPreferencesName = getString(R.string.settings_preference_key)
-        //manager.setSharedPreferencesMode(Context. )
         setPreferencesFromResource(R.xml.preferences, rootKey)
     }
 

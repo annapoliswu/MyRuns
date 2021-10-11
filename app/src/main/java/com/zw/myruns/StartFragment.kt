@@ -1,6 +1,7 @@
 package com.zw.myruns
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -38,11 +39,18 @@ class StartFragment : Fragment() {
         inputTypes = resources.getStringArray(R.array.inputTypes)
         activityTypes = resources.getStringArray(R.array.activityTypes)
 
+        //keeping track of last thing added
+        val sharedPref = requireContext().getSharedPreferences(
+            getString(R.string.last_id_saved_key),
+            Context.MODE_PRIVATE
+        )
+
         //database setup
         val database = ExerciseDatabase.getInstance(requireContext())
         val databaseDao = database.exerciseDatabaseDao
         val viewModelFactory = ExerciseViewModelFactory(databaseDao)
         exerciseViewModel = ViewModelProvider(this , viewModelFactory).get(ExerciseViewModel::class.java)
+
 
         //takes intent from other activities and posts a ExerciseEntry to database
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -50,11 +58,17 @@ class StartFragment : Fragment() {
                 val intent: Intent = result.data!!
                 val entry = Util.getEntryFromIntent(intent)
                 exerciseViewModel.insert(entry)
-                val toast = Toast.makeText(context, "Saved entry #${entry.id}", Toast.LENGTH_SHORT)
+
+                var lastid = sharedPref.getLong("last_id_saved_key", 0L).plus(1)
+                sharedPref.edit().putLong("last_id_saved_key", lastid).commit()
+
+                val toast = Toast.makeText(context, "Entry #${lastid} added", Toast.LENGTH_SHORT)
                 toast.show()
                 println("Got result with intent, in HistoryListAdapter")
             }
         }
+
+
 
     }
 
@@ -114,6 +128,5 @@ class StartFragment : Fragment() {
 
         return view
     }
-
 
 }

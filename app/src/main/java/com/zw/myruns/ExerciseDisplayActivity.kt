@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlin.properties.Delegates
@@ -33,6 +34,10 @@ class ExerciseDisplayActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exercise_display)
+
+        //replace toolbar
+        val toolbar: Toolbar = findViewById<Toolbar>(R.id.exercise_display_toolbar)
+        setSupportActionBar(toolbar)
 
         //get text views
         inputTypeTV = findViewById(R.id.inputTypeTV)
@@ -90,7 +95,7 @@ class ExerciseDisplayActivity : AppCompatActivity() {
 
     fun onDeleteClicked(view: View){
         exerciseViewModel.delete(id)
-        val toast = Toast.makeText(this, "Deleted entry #${id}", Toast.LENGTH_SHORT)
+        val toast = Toast.makeText(this, "Entry #${id} deleted", Toast.LENGTH_SHORT)
         toast.show()
         finish()
     }
