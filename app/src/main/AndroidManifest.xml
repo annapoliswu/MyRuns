@@ -6,7 +6,6 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -17,21 +16,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyRuns">
+        <service
+            android:name=".TrackingService"
+            android:enabled="true"
+            android:exported="true"/>
+
         <activity
             android:name=".ExerciseDisplayActivity"
             android:exported="true"
-            android:theme="@style/Light.NoActionBar"/>
+            android:theme="@style/Light.NoActionBar" />
         <activity
             android:name=".ManualActivity"
-            android:label="Manual Entry"></activity>
+            android:label="Manual Entry" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
         <activity
             android:name=".MapActivity"
-            android:label="Map"></activity>
-
+            android:label="Map" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
