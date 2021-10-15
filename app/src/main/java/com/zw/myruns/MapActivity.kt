@@ -30,6 +30,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         Manifest.permission.ACCESS_FINE_LOCATION
     )
     private lateinit var mapViewModel : MapViewModel
+    private lateinit var serviceIntent : Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +47,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
             //intValueLabel.text = "Int Message: $it"
         })
 
-        Log.d("MapAct", "onCreate before")
+        serviceIntent = Intent(this, TrackingService::class.java)
+
+        Log.d("MapAct", "onCreate")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("MapAct", "onDestroy")
         unbindService(mapViewModel)
-        //stopService(serviceIntent)
+        stopService(serviceIntent)
     }
 
     fun onSaveClicked(view :View){
@@ -83,7 +86,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         Util.checkPermissions(this, PERMISSIONS)
         try {
             //start explicitly so service exists without things bound, bind service
-            val serviceIntent = Intent(this, TrackingService::class.java)
             startService(serviceIntent)
             bindService(serviceIntent, mapViewModel, Context.BIND_AUTO_CREATE)
         }catch (e: SecurityException){

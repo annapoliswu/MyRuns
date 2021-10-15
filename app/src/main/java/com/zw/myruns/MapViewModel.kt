@@ -7,12 +7,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 
+//TODO: INSTEAD OF THIS, broadcast receiver in mapact, broadcast in tracking, send intent
 class MapViewModel  : ViewModel(), ServiceConnection {
 
     private val _distance = MutableLiveData<Float>()
     val distance: LiveData<Float>
         get() = _distance
+
+    private val _locationList = MutableLiveData<ArrayList<LatLng>>()
+    val locationList: LiveData<ArrayList<LatLng>>
+        get() = _locationList
 
     /**
      *  @ColumnInfo(name = "duration")
@@ -49,7 +55,7 @@ class MapViewModel  : ViewModel(), ServiceConnection {
         val trackingBinder = iBinder as TrackingService.MyBinder
     }
 
-    override fun onServiceDisconnected(p0: ComponentName?) {
+    override fun onServiceDisconnected(compName: ComponentName?) {
         //TODO("Not yet implemented")
         Log.d("MapViewModel", "onServiceDisconnected")
 

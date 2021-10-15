@@ -14,6 +14,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BADGE_ICON_LARGE
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PolylineOptions
 
 class TrackingService : Service(), LocationListener {
     private lateinit var notificationManager: NotificationManager
@@ -21,10 +23,14 @@ class TrackingService : Service(), LocationListener {
     private lateinit var  myBinder: MyBinder
     private val CHANNEL_ID = "notification channel"
 
+    private lateinit var locationList : ArrayList<LatLng>
+
     override fun onCreate() {
         super.onCreate()
 
         myBinder = MyBinder()
+        locationList = ArrayList()
+
 
         Log.d("TrackingService", "onCreate")
     }
@@ -39,6 +45,10 @@ class TrackingService : Service(), LocationListener {
     inner class MyBinder : Binder() {
         fun setmsgHandler(msgHandler: Handler) {
             //this@CounterService.msgHandler = msgHandler
+        }
+
+        fun getLocationList() : ArrayList<LatLng> {
+            return locationList
         }
 
 
@@ -71,10 +81,14 @@ class TrackingService : Service(), LocationListener {
 
     private fun cleanup(){
         notificationManager.cancel(NOTIFICATION_ID)
+        locationList.clear()
     }
 
     override fun onLocationChanged(location: Location) {
-        //TODO("Not yet implemented")
+        val lat = location.latitude
+        val lng = location.longitude
+        val latLng = LatLng(lat, lng)
+        locationList.add(latLng)
     }
 
 
@@ -86,6 +100,7 @@ class TrackingService : Service(), LocationListener {
         notificationBuilder.setSmallIcon(R.drawable.ic_notification)
         notificationBuilder.setContentTitle("MyRuns")
         notificationBuilder.setContentText("Recording your path now")
+        notificationBuilder.setOngoing(true)
         notificationBuilder.setSilent(true)
 
         //Set notification to go back to activity once clicked

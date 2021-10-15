@@ -147,6 +147,8 @@ object Util {
     }
 
 
+
+
     //For consistent conversions across Activities
     fun toArrayList(json : String ): ArrayList<LatLng>{
         val gson = Gson()
