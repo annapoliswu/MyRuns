@@ -108,6 +108,7 @@ object Util {
         return intent
     }
 
+
     fun createEntryIntent(
         inputType: String,
         activityType: String,

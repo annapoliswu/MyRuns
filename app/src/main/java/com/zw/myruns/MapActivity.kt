@@ -43,8 +43,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
 
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
-        mapViewModel.distance.observe(this, Observer { it ->
+        mapViewModel.locationList.observe(this, Observer { it ->
             //intValueLabel.text = "Int Message: $it"
+            println("new location added "+ it.last().toString())
         })
 
         serviceIntent = Intent(this, TrackingService::class.java)

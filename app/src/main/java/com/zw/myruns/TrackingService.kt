@@ -5,12 +5,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
-import android.os.Binder
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
+import android.location.LocationManager
+import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BADGE_ICON_LARGE
@@ -18,19 +17,25 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 
 class TrackingService : Service(), LocationListener {
+    private lateinit var locationManager: LocationManager
+    private var msgHandler: Handler? = null
     private lateinit var notificationManager: NotificationManager
     private val NOTIFICATION_ID = 123
     private lateinit var  myBinder: MyBinder
     private val CHANNEL_ID = "notification channel"
-
+    companion object{
+        val INT_KEY = "int key"
+        val MSG_INT_VALUE = 0
+    }
     private lateinit var locationList : ArrayList<LatLng>
 
     override fun onCreate() {
         super.onCreate()
 
+        msgHandler = null
         myBinder = MyBinder()
         locationList = ArrayList()
-
+        initLocationManager()
 
         Log.d("TrackingService", "onCreate")
     }
@@ -44,7 +49,7 @@ class TrackingService : Service(), LocationListener {
     //public functions go here
     inner class MyBinder : Binder() {
         fun setmsgHandler(msgHandler: Handler) {
-            //this@CounterService.msgHandler = msgHandler
+            this@TrackingService.msgHandler = msgHandler
         }
 
         fun getLocationList() : ArrayList<LatLng> {
@@ -63,6 +68,7 @@ class TrackingService : Service(), LocationListener {
     override fun onUnbind(intent: Intent?): Boolean {
         super.onUnbind(intent)
         Log.d("TrackingService", "onUnbind")
+        msgHandler = null
         cleanup()
         return true
     }
@@ -89,6 +95,22 @@ class TrackingService : Service(), LocationListener {
         val lng = location.longitude
         val latLng = LatLng(lat, lng)
         locationList.add(latLng)
+        Log.d("TrackingService", "location changed")
+        try {
+
+            val tempHandler = msgHandler //see the reason why we need a local val in this situation https://stackoverflow.com/questions/44595529/smart-cast-to-type-is-impossible-because-variable-is-a-mutable-property-tha
+            if (tempHandler != null) {
+                val bundle = Bundle()
+                bundle.putString(INT_KEY, Util.fromArrayList(locationList) )
+                val message: Message = tempHandler.obtainMessage()
+                message.data = bundle
+                message.what = MSG_INT_VALUE
+                tempHandler.sendMessage(message)
+                Log.d("TrackingService", "Sent message")
+            }
+        } catch (t: Throwable) { // you should always ultimately catch all // exceptions in timer tasks.
+            println("hmmm")
+        }
     }
 
 
@@ -124,6 +146,18 @@ class TrackingService : Service(), LocationListener {
     }
 
 
-
+    fun initLocationManager() {
+        try {
+            locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+            val criteria = Criteria()
+            criteria.accuracy = Criteria.ACCURACY_FINE
+            val provider = locationManager.getBestProvider(criteria, true)
+            val location = locationManager.getLastKnownLocation(provider!!)
+            if (location != null)
+                onLocationChanged(location)
+            locationManager.requestLocationUpdates(provider, 0, 0f, this)
+        } catch (e: SecurityException) {
+        }
+    }
 
 }
