@@ -7,6 +7,7 @@ import android.location.Location
 import android.location.LocationListener
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.Observer
@@ -22,8 +23,7 @@ import java.util.ArrayList
 /**
  *  Display google maps in this
  */
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener,
-    GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
     private lateinit var mMap : GoogleMap
     private val PERMISSIONS = arrayOf(
@@ -46,14 +46,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener,
             //intValueLabel.text = "Int Message: $it"
         })
 
-        //start explicitly so service exists without things bound, bind service
-        val serviceIntent = Intent(this, TrackingService::class.java)
-        startService(serviceIntent)
-        bindService(serviceIntent, mapViewModel, Context.BIND_AUTO_CREATE)
+        Log.d("MapAct", "onCreate before")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("MapAct", "onDestroy")
+        unbindService(mapViewModel)
+        //stopService(serviceIntent)
     }
 
     fun onSaveClicked(view :View){
@@ -68,28 +68,28 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener,
     override fun onMapReady(googleMap: GoogleMap) {
         //TODO("Not yet implemented")
         mMap = googleMap
-
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
-        mMap.setOnMapClickListener(this)
-        mMap.setOnMapLongClickListener(this)
+
+        //mMap.setOnMapClickListener(this)
+        //mMap.setOnMapLongClickListener(this)
+
         /*
         polylineOptions = PolylineOptions()
         polylineOptions.color(Color.BLACK)
         polylines = ArrayList()
         markerOptions = MarkerOptions()
-*/
+        */
+
         Util.checkPermissions(this, PERMISSIONS)
+        try {
+            //start explicitly so service exists without things bound, bind service
+            val serviceIntent = Intent(this, TrackingService::class.java)
+            startService(serviceIntent)
+            bindService(serviceIntent, mapViewModel, Context.BIND_AUTO_CREATE)
+        }catch (e: SecurityException){
+            Log.d("Exception caught", e.toString())
+        }
     }
 
-    override fun onLocationChanged(p0: Location) {
-        //TODO("Not yet implemented")
-    }
 
-    override fun onMapClick(p0: LatLng?) {
-        //TODO("Not yet implemented")
-    }
-
-    override fun onMapLongClick(p0: LatLng?) {
-        //TODO("Not yet implemented")
-    }
 }

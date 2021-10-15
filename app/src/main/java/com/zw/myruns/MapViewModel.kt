@@ -3,6 +3,7 @@ package com.zw.myruns
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -44,13 +45,14 @@ class MapViewModel  : ViewModel(), ServiceConnection {
 
     override fun onServiceConnected(compName: ComponentName?, iBinder: IBinder?) {
         //TODO("Not yet implemented")
-        println("service connected")
+        Log.d("MapViewModel", "onServiceConnected")
         val trackingBinder = iBinder as TrackingService.MyBinder
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         //TODO("Not yet implemented")
-        println("service disconnected")
+        Log.d("MapViewModel", "onServiceDisconnected")
+
     }
 
 
