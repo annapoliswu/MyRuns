@@ -77,7 +77,8 @@ class MapViewModel  : ViewModel(), ServiceConnection {
         override fun handleMessage(mess: Message) {
             if (mess.what == TrackingService.MSG_INT_VALUE) {
                 val bundle = mess.data
-                _locationList.value = Util.toArrayList( bundle.getString(TrackingService.INT_KEY)!! )
+                _locationList.value = Util.toArrayList( bundle.getString(TrackingService.LOCATIONS_KEY)!! )
+                //_polyLines.value = locationList
             }
         }
     }

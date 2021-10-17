@@ -1,9 +1,6 @@
 package com.zw.myruns
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Intent
 import android.location.Criteria
 import android.location.Location
@@ -15,6 +12,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BADGE_ICON_LARGE
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+import android.content.DialogInterface
+import android.provider.Settings
+import android.widget.Toast
+
 
 class TrackingService : Service(), LocationListener {
     private lateinit var locationManager: LocationManager
@@ -23,11 +24,18 @@ class TrackingService : Service(), LocationListener {
     private val NOTIFICATION_ID = 123
     private lateinit var  myBinder: MyBinder
     private val CHANNEL_ID = "notification channel"
+
     companion object{
-        val INT_KEY = "int key"
+        val LOCATIONS_KEY = "int key"
         val MSG_INT_VALUE = 0
     }
     private lateinit var locationList : ArrayList<LatLng>
+    private var distance : Float = 0F
+    private var duration : Float = 0F
+    private var average_speed : Float = 0F
+    private var climb : Float = 0F
+    private var calories : Int = 0
+    //private var heart_rate : Int = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -45,6 +53,8 @@ class TrackingService : Service(), LocationListener {
         Log.d("TrackingService", "onBind")
         return myBinder
     }
+
+
 
     //public functions go here
     inner class MyBinder : Binder() {
@@ -65,31 +75,34 @@ class TrackingService : Service(), LocationListener {
         return START_NOT_STICKY
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
-        super.onUnbind(intent)
-        Log.d("TrackingService", "onUnbind")
-        msgHandler = null
-        cleanup()
-        return true
-    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d("TrackingService", "onDestroy")
         cleanup()
-
     }
+
+    //for when app is closed, stop service
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        Log.d("TrackingService", "onTaskRem")
         cleanup()
         stopSelf()
     }
 
-    private fun cleanup(){
-        notificationManager.cancel(NOTIFICATION_ID)
-        locationList.clear()
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d("TrackingService", "unBind")
+        return super.onUnbind(intent)
     }
 
+    private fun cleanup(){
+        msgHandler = null
+        notificationManager.cancel(NOTIFICATION_ID)
+        locationList.clear()
+        if (locationManager != null)
+            locationManager.removeUpdates(this)
+    }
+
+    //update location, duration,
     override fun onLocationChanged(location: Location) {
         val lat = location.latitude
         val lng = location.longitude
@@ -98,18 +111,18 @@ class TrackingService : Service(), LocationListener {
         Log.d("TrackingService", "location changed")
         try {
 
-            val tempHandler = msgHandler //see the reason why we need a local val in this situation https://stackoverflow.com/questions/44595529/smart-cast-to-type-is-impossible-because-variable-is-a-mutable-property-tha
+            val tempHandler = msgHandler
             if (tempHandler != null) {
                 val bundle = Bundle()
-                bundle.putString(INT_KEY, Util.fromArrayList(locationList) )
+                bundle.putString(LOCATIONS_KEY, Util.fromArrayList(locationList) )
                 val message: Message = tempHandler.obtainMessage()
                 message.data = bundle
                 message.what = MSG_INT_VALUE
                 tempHandler.sendMessage(message)
                 Log.d("TrackingService", "Sent message")
             }
-        } catch (t: Throwable) { // you should always ultimately catch all // exceptions in timer tasks.
-            println("hmmm")
+        } catch (t: Throwable) {
+            Log.d("TrackingService", t.toString())
         }
     }
 
@@ -146,18 +159,29 @@ class TrackingService : Service(), LocationListener {
     }
 
 
-    fun initLocationManager() {
+    private fun initLocationManager() {
         try {
             locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
             val criteria = Criteria()
             criteria.accuracy = Criteria.ACCURACY_FINE
-            val provider = locationManager.getBestProvider(criteria, true)
-            val location = locationManager.getLastKnownLocation(provider!!)
-            if (location != null)
-                onLocationChanged(location)
-            locationManager.requestLocationUpdates(provider, 0, 0f, this)
+            val provider = locationManager.getBestProvider(criteria, false) //get provider even if location not enabled
+
+            if(provider != null) { //location enabled
+                val location = locationManager.getLastKnownLocation(provider)
+                if (location != null)
+                    onLocationChanged(location)
+                locationManager.requestLocationUpdates(provider, 0, 0f, this)
+            }else{
+
+            }
+
         } catch (e: SecurityException) {
         }
     }
+
+    //overrides so doesn't crash upon location services on/off when using service
+    override fun onProviderDisabled(provider: String) {}
+    override fun onProviderEnabled(provider: String) {}
+
 
 }
