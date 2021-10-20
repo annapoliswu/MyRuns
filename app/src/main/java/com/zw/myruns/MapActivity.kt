@@ -13,9 +13,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.properties.Delegates
 
 /**
  *  Display google maps in this
@@ -36,13 +39,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var mMap : GoogleMap
-    private val PERMISSIONS = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION
-    )
+
     private lateinit var mapViewModel : MapViewModel
     private lateinit var serviceIntent : Intent
     private var serviceBound : Boolean = false
     private val PERMISSION_REQUEST_CODE = 1
+    private lateinit var exerciseViewModel : ExerciseViewModel
+    var id by Delegates.notNull<Long>()
 
     private var mapCentered : Boolean = false
     private lateinit var  markerOptions: MarkerOptions
@@ -64,14 +67,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     private var calories: Int = 0
     private var distance: Float = 0F
     private var duration: Float = 0F
-    private var dateTime : String = ""
+    private var dateTime : String = Util.calendarToString(Calendar.getInstance())
     private var activityType : String = ""
     private var inputType : String = ""
-    private lateinit var locations : ArrayList<LatLng>
+    private var locations : ArrayList<LatLng> = ArrayList()
 
     private var redrawnMap: Boolean = true
 
 
+
+    //varies view depending on if displaying an entry or tracking a new entry
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -83,6 +88,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
         serviceIntent = Intent(this, TrackingService::class.java)
 
+        //stat views setup
         activityTypeTV = findViewById(R.id.mapstat_activity_type)
         averageSpeedTV = findViewById(R.id.mapstat_average_speed)
         currentSpeedTV = findViewById(R.id.mapstat_current_speed)
@@ -90,21 +96,28 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         caloriesTV = findViewById(R.id.mapstat_calories)
         distanceTV = findViewById(R.id.mapstat_distance)
 
-        /*
-        //??
-        onBackPressedCallback = object : OnBackPressedCallback (true){
-            override fun handleOnBackPressed() {
-                unbindService()
-                applicationContext.stopService(intent)
-                applicationContext.onBackPressedCallback()
+        //swap toolbars and hide buttons
+        val defaultToolbar: Toolbar = findViewById(R.id.map_default_toolbar)
+        val displayToolbar: Toolbar = findViewById(R.id.map_display_toolbar)
+        val extras = intent.extras
+        if(extras != null){
+            if(extras.containsKey("entry_id")){
+                setSupportActionBar(displayToolbar)
+                defaultToolbar.visibility = View.GONE
+
+                val mapButtons: LinearLayout = findViewById(R.id.mapButtons)
+                mapButtons.visibility = View.GONE
+
+                val database = ExerciseDatabase.getInstance(this)
+                val databaseDao = database.exerciseDatabaseDao
+                val viewModelFactory = ExerciseViewModelFactory(databaseDao)
+                exerciseViewModel = ViewModelProvider(this, viewModelFactory).get(ExerciseViewModel::class.java)
+            }else{
+                setSupportActionBar(defaultToolbar)
+                displayToolbar.visibility = View.GONE
             }
         }
-        applicationContext.onBackPressedDispatcher.addCallback(
-            requireActivity(),
-            onBackPressedCallback()
-        )
-        */
-        Log.d("MapAct", "onCreate")
+
     }
 
     //onDestroy called every config change
@@ -126,6 +139,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
 
+    //when map is ready, either start tracking or display entry
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
@@ -135,41 +149,38 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         polylines = ArrayList()
         markerOptions = MarkerOptions()
 
-        //TODO: starting point maybe?
-        mMap.addMarker(
-            MarkerOptions()
-                .position(LatLng(-33.852, 151.211))
-                .title("Placeholder Position")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-        )
-
         val extras = intent.extras
         if(extras != null){
-            activityType = extras.getString("activity_type", "")
-            inputType = extras.getString("input_type", "")
 
             if(extras.containsKey("entry_id")){
-                val database = ExerciseDatabase.getInstance(this)
-                val databaseDao = database.exerciseDatabaseDao
-                val viewModelFactory = ExerciseViewModelFactory(databaseDao)
-                val exerciseViewModel = ViewModelProvider(this, viewModelFactory).get(ExerciseViewModel::class.java)
-
                 val id = extras.getLong("entry_id")
                 exerciseViewModel.allEntries.observe(this, Observer { changedList ->
                     val entry = changedList.find { ee -> ee.id == id }
-                    drawMap(Util.getBundleFromEntry(entry!!))
+                    if (entry != null) {
+                        this.id = entry.id
+                        activityType = entry.activityType
+                        inputType = entry.inputType
+                        val bundle = Util.getBundleFromEntry(entry)
+                        drawMap(bundle)
+                    }
                 })
             }else{
                 checkPermissionStartService()
+                activityType = extras.getString("activity_type", "")
+                inputType = extras.getString("input_type", "")
+
+                //placeholder starter marker for loading? idk it's in the demo
+                mMap.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(3.75, 3.75))
+                        .title("Placeholder Position")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                )
                 mapViewModel.bundle.observe(this, Observer { bundle ->
                     drawMap(bundle)
                 })
             }
         }
-
-
-
-
     }
 
     //update the map view with a exercise entry bundle
@@ -213,12 +224,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         calories = bundle.getInt("calories")
         duration = bundle.getFloat("duration")
         dateTime = bundle.getString("date_time", "")
-        changeStats("Running Plc", averageSpeed, currentSpeed, climb, calories, distance)
+        changeStats(activityType, averageSpeed, currentSpeed, climb, calories, distance)
     }
 
     //checks if point is within visible map camera region
     fun isCenter(latLng : LatLng):Boolean{
-        //gets visible screen region
         val region =  mMap.projection.visibleRegion
         if(serviceBound){
             return region.latLngBounds.contains(latLng)
@@ -234,9 +244,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         lastMarker = mMap.addMarker(markerOptions)
     }
 
+
     private fun startTrackingService(){
         try {
-            //start explicitly so service exists without things bound, bind service
             applicationContext.startService(serviceIntent)
             applicationContext.bindService(serviceIntent, mapViewModel, Context.BIND_AUTO_CREATE)
             serviceBound = true
@@ -244,8 +254,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
             Log.d("Exception caught", e.toString())
         }
     }
-
-
 
     //to change the map stats textviews
     private fun changeStats(activityType: String, averageSpeed: Float, currentSpeed : Float, climb : Float, calories : Int, distance : Float ){
@@ -287,5 +295,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         setResult(Activity.RESULT_CANCELED)
         finish()
     }
+    fun onDeleteClicked(view: View){
+        exerciseViewModel.delete(id)
+        val toast = Toast.makeText(this, "Entry #${id} deleted", Toast.LENGTH_SHORT)
+        toast.show()
+        finish()
+    }
+    fun onBackClicked(view: View){
+        finish()
+    }
+
 
 }

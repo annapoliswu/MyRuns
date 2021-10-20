@@ -63,7 +63,7 @@ class HistoryListAdapter (val context: Context, var entriesList: List<ExerciseEn
         view.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View?) {
                 val intent : Intent
-                if(listItem.activityType == "Manual Entry") {
+                if(listItem.inputType == "Manual Entry") {
                     intent = Intent(context, ExerciseDisplayActivity::class.java)
                 }else{
                     intent = Intent(context, MapActivity::class.java)

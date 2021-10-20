@@ -1,76 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <fragment xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/map_default_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:titleTextColor="?attr/colorOnPrimary"
+        android:theme="?attr/actionBarTheme" >
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/map_display_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/default_margin">
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/purple_200"
+                android:textColor="?attr/colorOnPrimary"
+                android:minWidth="125dp"
+                android:onClick="onDeleteClicked"
+                android:text="Delete"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/purple_200"
+                android:textColor="?attr/colorOnPrimary"
+                android:minWidth="125dp"
+                android:onClick="onBackClicked"
+                android:text="Back"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:layout_height="wrap_content"
+
+        <fragment xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MapsActivity" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:id="@+id/mapstat_activity_type"
-            android:text="Waiting for location services..."/>
-        <TextView
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/mapstat_average_speed"
-            android:text="."/>
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/mapstat_current_speed"
-            android:text="."/>
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/mapstat_climb"
-            android:text="."/>
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/mapstat_calories"
-            android:text="."/>
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:id="@+id/mapstat_distance"
-            android:text="."/>
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="@dimen/default_padding">
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_activity_type"
+                android:text="Waiting for location update..."/>
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_average_speed"
+                android:text="."/>
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_current_speed"
+                android:text="."/>
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_climb"
+                android:text="."/>
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_calories"
+                android:text="."/>
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/mapstat_distance"
+                android:text="."/>
+        </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginVertical="@dimen/default_margin"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/mapButtons">
-
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_button"
-            android:onClick="onSaveClicked"
-            android:minWidth="125dp"
-            android:layout_marginRight="@dimen/default_margin"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel_button"
-            android:onClick="onCancelClicked"
-            android:minWidth="125dp"/>
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginVertical="@dimen/default_margin"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/mapButtons">
 
-</RelativeLayout>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary"
+                android:text="@string/save_button"
+                android:onClick="onSaveClicked"
+                android:minWidth="125dp"
+                android:layout_marginRight="@dimen/default_margin"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary"
+                android:text="@string/cancel_button"
+                android:onClick="onCancelClicked"
+                android:minWidth="125dp"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
