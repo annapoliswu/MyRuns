@@ -33,13 +33,12 @@ import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 /**
- *  Display google maps in this
+ *  Display google maps with this, view varies for display vs tracking based on intent passed in
  */
 class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private lateinit var mMap : GoogleMap
 
+    private lateinit var mMap : GoogleMap
     private lateinit var mapViewModel : MapViewModel
     private lateinit var serviceIntent : Intent
     private var serviceBound : Boolean = false
@@ -71,6 +70,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     private var activityType : String = ""
     private var inputType : String = ""
     private var locations : ArrayList<LatLng> = ArrayList()
+    private val placeholderPosition: LatLng = LatLng(0.0, 0.0)
 
     private var redrawnMap: Boolean = true
 
@@ -120,12 +120,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
     }
 
-    //onDestroy called every config change
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MapAct", "onDestroy")
-    }
-
 
     // not called on config change
     // when activity is closed or back is hit, unbind and stop service
@@ -170,12 +164,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                 inputType = extras.getString("input_type", "")
 
                 //placeholder starter marker for loading? idk it's in the demo
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(3.75, 3.75))
-                        .title("Placeholder Position")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                )
+                addPlaceholderMarker()
+
                 mapViewModel.bundle.observe(this, Observer { bundle ->
                     drawMap(bundle)
                 })
@@ -183,48 +173,55 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         }
     }
 
-    //update the map view with a exercise entry bundle
+    //update the map view with an exercise entry bundle
     fun drawMap(bundle: Bundle){
 
         //update drawn line
         locations = Util.toArrayList( bundle.getString("locations")!! )
-        polylineOptions = PolylineOptions()
-        polylineOptions.addAll(locations)
-        mMap.addPolyline(polylineOptions)
 
-        val latLng = locations.last()
+        if(locations.isEmpty()){ //for edge case of saving before any locations read
+            addPlaceholderMarker()
+            val statsView : LinearLayout= findViewById(R.id.map_stats)
+            statsView.visibility = View.GONE
+        }else {
+            polylineOptions = PolylineOptions()
+            polylineOptions.addAll(locations)
+            mMap.addPolyline(polylineOptions)
 
-        //center map
-        mapCentered = isCenter(latLng)
-        if (!mapCentered) {
-            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 20f)
-            mMap.animateCamera(cameraUpdate)
-            mapCentered = true
+            val latLng = locations.last()
+
+            //center map
+            mapCentered = isCenter(latLng)
+            if (!mapCentered) {
+                val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 20f)
+                mMap.animateCamera(cameraUpdate)
+                mapCentered = true
+            }
+
+            //add first marker again if map is recreated
+            if (redrawnMap) {
+                mMap.addMarker(
+                    MarkerOptions()
+                        .position(locations.first())
+                        .title("Start location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .zIndex(-1f)
+                )
+                redrawnMap = false
+            }
+            //update current location marker
+            moveMarker(latLng)
+
+            //change map stats views
+            averageSpeed = bundle.getFloat("average_speed")
+            currentSpeed = bundle.getFloat("average_pace")
+            distance = bundle.getFloat("distance")
+            climb = bundle.getFloat("climb")
+            calories = bundle.getInt("calories")
+            duration = bundle.getFloat("duration")
+            dateTime = bundle.getString("date_time", "")
+            changeStats(activityType, averageSpeed, currentSpeed, climb, calories, distance)
         }
-
-        //add first marker again if map is recreated
-        if(redrawnMap) {
-            mMap.addMarker(
-                MarkerOptions()
-                    .position(locations.first())
-                    .title("Start location")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .zIndex(-1f)
-            )
-            redrawnMap = false
-        }
-        //update current location marker
-        moveMarker(latLng)
-
-        //change map stats views
-        averageSpeed = bundle.getFloat("average_speed")
-        currentSpeed = bundle.getFloat("average_pace")
-        distance = bundle.getFloat("distance")
-        climb = bundle.getFloat("climb")
-        calories = bundle.getInt("calories")
-        duration = bundle.getFloat("duration")
-        dateTime = bundle.getString("date_time", "")
-        changeStats(activityType, averageSpeed, currentSpeed, climb, calories, distance)
     }
 
     //checks if point is within visible map camera region
@@ -242,6 +239,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         lastMarker?.remove()
         markerOptions.position(latLng).title("End location")
         lastMarker = mMap.addMarker(markerOptions)
+    }
+
+    fun addPlaceholderMarker(){
+        mMap.addMarker(
+            MarkerOptions()
+                .position(placeholderPosition)
+                .title("Placeholder Position")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+        )
     }
 
 

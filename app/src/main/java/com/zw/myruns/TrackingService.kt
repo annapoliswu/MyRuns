@@ -20,7 +20,9 @@ import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-
+/**
+ * gets location, calculates speeds and other stats, sends bundle to MapViewModel
+ */
 class TrackingService : Service(), LocationListener, SensorEventListener {
     private lateinit var locationManager: LocationManager
     private var msgHandler: Handler? = null
@@ -28,7 +30,6 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private val NOTIFICATION_ID = 123
     private lateinit var  myBinder: MyBinder
     private val CHANNEL_ID = "notification channel"
-
     companion object{
         val MSG_INT_VALUE = 0
     }
@@ -64,12 +65,10 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
 
         dateTime = Util.calendarToString( Calendar.getInstance() )
         startTime = getTime()
-        Log.d("TrackingService", "onCreate")
     }
 
 
     override fun onBind(intent: Intent): IBinder {
-        Log.d("TrackingService", "onBind")
         return myBinder
     }
 
@@ -83,18 +82,12 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("TrackingService", "onStartCommand")
         return START_NOT_STICKY
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
-        Log.d("TrackingService", "unBind")
-        return super.onUnbind(intent)
-    }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("TrackingService", "onDestroy")
         cleanup()
     }
 
@@ -116,14 +109,15 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
         locationList.clear()
     }
 
-    //do calculations for everything, then send message to view model to update the stats
-    override fun onLocationChanged(location: Location) {        //climb use location.altitude
+    //when location changes, do calculations for everything, then send message notifying update
+    override fun onLocationChanged(location: Location) {
         Log.d("TrackingService", "location changed")
         val lat = location.latitude
         val lng = location.longitude
         val latLng = LatLng(lat, lng)
         locationList.add(latLng)
 
+        //only calculate if there is a previous data point
         if(::lastLocation.isInitialized){
             val travelledDistance = Util.metersToMiles(lastLocation.distanceTo(location) )
             distance += travelledDistance
@@ -143,7 +137,6 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
             //just going to set this to 120 cal / mile (since it's weight based anyways)
             calories = (distance * 120).toInt()
 
-            Log.d("Tracking Service","Duration: $duration" )
         }
         sendMessage()
         lastLocation = location
@@ -154,11 +147,9 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private fun elapsedSeconds(t1 : Long, t2 : Long) : Float{
         return ((t2 - t1)/1000).toFloat()
     }
-
     private fun elapsedMinutes(t1 : Long, t2 : Long) : Float{
         return elapsedSeconds(t1, t2)/60
     }
-
     private fun elapsedHours(t1 : Long, t2 : Long) : Float{
         return elapsedSeconds(t1, t2)/3600
     }
@@ -179,7 +170,6 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
                 message.data = bundle
                 message.what = MSG_INT_VALUE
                 tempHandler.sendMessage(message)
-                Log.d("TrackingService", "Sent message")
             }
         } catch (t: Throwable) {
             Log.d("TrackingService", t.toString())
@@ -230,15 +220,13 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
                 if (location != null)
                     onLocationChanged(location)
                 locationManager.requestLocationUpdates(provider, 0, 0f, this)
-            }else{
-
             }
 
         } catch (e: SecurityException) {
         }
     }
 
-    //overrides so doesn't crash upon location services on/off when using service
+    //overrides so tracking doesn't crash upon location services on/off when using service
     override fun onProviderDisabled(provider: String) {}
     override fun onProviderEnabled(provider: String) {}
 
@@ -252,9 +240,8 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
             //onresume registerlistener, onpause unregister listener..
         }
     }
-
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-        //TODO: not implemented / maybe not needed
+        //TODO: not implemented, maybe not needed
     }
 
 
