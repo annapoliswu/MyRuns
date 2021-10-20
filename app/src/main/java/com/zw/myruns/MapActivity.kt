@@ -156,6 +156,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                         inputType = entry.inputType
                         val bundle = Util.getBundleFromEntry(entry)
                         drawMap(bundle)
+                        currentSpeedTV.text = "Current Speed: n/a"
                     }
                 })
             }else{

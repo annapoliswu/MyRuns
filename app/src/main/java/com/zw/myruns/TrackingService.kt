@@ -9,14 +9,8 @@ import android.location.LocationManager
 import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.BADGE_ICON_LARGE
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolylineOptions
-import android.content.DialogInterface
 import android.hardware.*
-import android.provider.Settings
-import android.widget.Toast
-import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
