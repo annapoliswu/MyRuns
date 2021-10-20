@@ -12,12 +12,41 @@
         android:layout_height="match_parent"
         tools:context=".MapsActivity" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
         <TextView
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:id="@+id/type_stats"
-            android:text="statsssssssssss"
-            android:layout_alignParentTop="true"/>
+            android:id="@+id/mapstat_activity_type"
+            android:text="Waiting for location services..."/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mapstat_average_speed"
+            android:text="."/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mapstat_current_speed"
+            android:text="."/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mapstat_climb"
+            android:text="."/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mapstat_calories"
+            android:text="."/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/mapstat_distance"
+            android:text="."/>
+    </LinearLayout>
 
 
     <LinearLayout

@@ -34,16 +34,16 @@ data class ExerciseEntry(
     @ColumnInfo(name = "distance")  //stored in miles
     var distance: Float = 0F,
 
-    @ColumnInfo(name = "average_pace")
+    @ColumnInfo(name = "average_pace")  //miles/hr
     var avgPace: Float = 0F,
 
-    @ColumnInfo(name = "average_speed")
+    @ColumnInfo(name = "average_speed") //miles/hr
     var avgSpeed: Float = 0F,
 
     @ColumnInfo(name = "calories")
     var calories: Int = 0,
 
-    @ColumnInfo(name = "climb")
+    @ColumnInfo(name = "climb")     //miles
     var climb: Float = 0F,
 
     @ColumnInfo(name = "heart_rate")

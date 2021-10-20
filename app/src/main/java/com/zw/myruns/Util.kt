@@ -175,6 +175,15 @@ object Util {
         return miles
     }
 
+    fun metersToMiles(meters : Float): Float{
+        val miles = meters / 1609.344F
+        return miles
+    }
+
+    fun milesToMeters(miles: Float) : Float{
+        val meters = miles * 1609.344F
+        return meters
+    }
 
     //given minutes in a float, return just minutes
     fun getMinutes(duration: Float): Int{
