@@ -1,6 +1,7 @@
 package com.zw.myruns
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,7 +26,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import java.util.ArrayList
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  *  Display google maps in this
@@ -42,7 +44,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     private var serviceBound : Boolean = false
     private val PERMISSION_REQUEST_CODE = 1
 
-    private var mapCentered = false
+    private var mapCentered : Boolean = false
     private lateinit var  markerOptions: MarkerOptions
     private lateinit var  polylineOptions: PolylineOptions //list of latlng positions in
     private lateinit var  polylines: ArrayList<Polyline> //drawn polylines, what is used to render
@@ -54,12 +56,18 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var climbTV : TextView
     private lateinit var caloriesTV : TextView
     private lateinit var distanceTV : TextView
-    
+
+    //for displays and passing bundle
     private var averageSpeed: Float = 0F
     private var currentSpeed: Float = 0F
     private var climb: Float = 0F
     private var calories: Int = 0
     private var distance: Float = 0F
+    private var duration: Float = 0F
+    private var dateTime : String = ""
+    private var activityType : String = ""
+    private var inputType : String = ""
+    private lateinit var locations : ArrayList<LatLng>
 
     private var redrawnMap: Boolean = true
 
@@ -67,7 +75,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
-        //applicationContext
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -106,12 +113,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         Log.d("MapAct", "onDestroy")
     }
 
-    fun onSaveClicked(view :View){
-        finish()
-    }
-    fun onCancelClicked(view: View){
-        finish()
-    }
 
     // not called on config change
     // when activity is closed or back is hit, unbind and stop service
@@ -126,8 +127,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
 
     override fun onMapReady(googleMap: GoogleMap) {
-        checkPermission()
-
         mMap = googleMap
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
@@ -144,57 +143,89 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
         )
 
-        mapViewModel.bundle.observe(this, Observer { bundle ->
+        val extras = intent.extras
+        if(extras != null){
+            activityType = extras.getString("activity_type", "")
+            inputType = extras.getString("input_type", "")
 
-            //update drawn line
-            val locList = Util.toArrayList( bundle.getString(TrackingService.LOCATIONS_KEY)!! )
-            polylineOptions = PolylineOptions()
-            polylineOptions.addAll(locList)
-            mMap.addPolyline(polylineOptions)
+            if(extras.containsKey("entry_id")){
+                val database = ExerciseDatabase.getInstance(this)
+                val databaseDao = database.exerciseDatabaseDao
+                val viewModelFactory = ExerciseViewModelFactory(databaseDao)
+                val exerciseViewModel = ViewModelProvider(this, viewModelFactory).get(ExerciseViewModel::class.java)
 
-            val latLng = locList.last()
-
-            //center map
-            mapCentered = isCenter(latLng)
-            if (!mapCentered) {
-                val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 20f)
-                mMap.animateCamera(cameraUpdate)
-                mapCentered = true
+                val id = extras.getLong("entry_id")
+                exerciseViewModel.allEntries.observe(this, Observer { changedList ->
+                    val entry = changedList.find { ee -> ee.id == id }
+                    drawMap(Util.getBundleFromEntry(entry!!))
+                })
+            }else{
+                checkPermissionStartService()
+                mapViewModel.bundle.observe(this, Observer { bundle ->
+                    drawMap(bundle)
+                })
             }
+        }
 
-            //add first marker again if map is recreated
-            if(redrawnMap) {
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(locList.first())
-                        .title("Start location")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                        .zIndex(-1f)
-                )
-                redrawnMap = false
-            }
-            //update current location marker
-            moveMarker(latLng)
 
-            //change map stats views
-            averageSpeed = bundle.getFloat(TrackingService.AVERAGE_SPEED_KEY)
-            currentSpeed = bundle.getFloat(TrackingService.CURRENT_SPEED_KEY)
-            distance = bundle.getFloat(TrackingService.DISTANCE_KEY)
-            climb = bundle.getFloat(TrackingService.CLIMB_KEY)
-            calories = bundle.getInt(TrackingService.CALORIES_KEY)
-            changeStats("Running Plc", averageSpeed, currentSpeed, climb, calories, distance)
-        })
+
 
     }
 
+    //update the map view with a exercise entry bundle
+    fun drawMap(bundle: Bundle){
+
+        //update drawn line
+        locations = Util.toArrayList( bundle.getString("locations")!! )
+        polylineOptions = PolylineOptions()
+        polylineOptions.addAll(locations)
+        mMap.addPolyline(polylineOptions)
+
+        val latLng = locations.last()
+
+        //center map
+        mapCentered = isCenter(latLng)
+        if (!mapCentered) {
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 20f)
+            mMap.animateCamera(cameraUpdate)
+            mapCentered = true
+        }
+
+        //add first marker again if map is recreated
+        if(redrawnMap) {
+            mMap.addMarker(
+                MarkerOptions()
+                    .position(locations.first())
+                    .title("Start location")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .zIndex(-1f)
+            )
+            redrawnMap = false
+        }
+        //update current location marker
+        moveMarker(latLng)
+
+        //change map stats views
+        averageSpeed = bundle.getFloat("average_speed")
+        currentSpeed = bundle.getFloat("average_pace")
+        distance = bundle.getFloat("distance")
+        climb = bundle.getFloat("climb")
+        calories = bundle.getInt("calories")
+        duration = bundle.getFloat("duration")
+        dateTime = bundle.getString("date_time", "")
+        changeStats("Running Plc", averageSpeed, currentSpeed, climb, calories, distance)
+    }
 
     //checks if point is within visible map camera region
     fun isCenter(latLng : LatLng):Boolean{
         //gets visible screen region
         val region =  mMap.projection.visibleRegion
-        return region.latLngBounds.contains(latLng)
+        if(serviceBound){
+            return region.latLngBounds.contains(latLng)
+        }else{
+            return false
+        }
     }
-
 
     //updates marker for current location on map
     fun moveMarker(latLng : LatLng){
@@ -228,7 +259,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     //make sure permissions on for tracking service to start
-    fun checkPermission() {
+    fun checkPermissionStartService() {
         if (Build.VERSION.SDK_INT < 23) return
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_CODE)
@@ -244,6 +275,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                 Toast.makeText(this, "Location permissions not granted", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+
+    fun onSaveClicked(view :View){
+        val intent = Util.createEntryIntent(inputType, activityType, dateTime, duration, distance, calories, 0, "",climb, currentSpeed, averageSpeed, locations)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
+    }
+    fun onCancelClicked(view: View){
+        setResult(Activity.RESULT_CANCELED)
+        finish()
     }
 
 }

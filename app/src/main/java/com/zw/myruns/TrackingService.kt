@@ -17,6 +17,8 @@ import android.hardware.*
 import android.provider.Settings
 import android.widget.Toast
 import com.google.android.material.timepicker.TimeFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TrackingService : Service(), LocationListener, SensorEventListener {
@@ -28,15 +30,9 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private val CHANNEL_ID = "notification channel"
 
     companion object{
-        val LOCATIONS_KEY = "locations_key"
-        val DISTANCE_KEY = "distance_key"
-        val DURATION_KEY = "duration_key"
-        val AVERAGE_SPEED_KEY = "average_speed_key"
-        val CURRENT_SPEED_KEY = "current_speed_key"
-        val CLIMB_KEY = "climb_key"
-        val CALORIES_KEY = "calories_key"
         val MSG_INT_VALUE = 0
     }
+
     private lateinit var locationList : ArrayList<LatLng>
     private var distance : Float = 0F
     private var duration : Float = 0F
@@ -44,6 +40,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private var current_speed : Float = 0F
     private var climb : Float = 0F
     private var calories : Int = 0
+    private var dateTime : String = ""
 
     private lateinit var lastLocation : Location
     private var startTime : Long = 0L
@@ -64,6 +61,8 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
         showNotification()
+
+        dateTime = Util.calendarToString( Calendar.getInstance() )
         startTime = getTime()
         Log.d("TrackingService", "onCreate")
     }
@@ -174,14 +173,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
         try {
             val tempHandler = msgHandler
             if (tempHandler != null) {
-                val bundle = Bundle()
-                bundle.putString(LOCATIONS_KEY, Util.fromArrayList(locationList) )
-                bundle.putFloat(AVERAGE_SPEED_KEY, average_speed)
-                bundle.putFloat(CURRENT_SPEED_KEY, current_speed)
-                bundle.putFloat(CLIMB_KEY, climb)
-                bundle.putFloat(DURATION_KEY, duration)
-                bundle.putFloat(DISTANCE_KEY, distance)
-                bundle.putInt(CALORIES_KEY, calories)
+                val bundle = Util.createEntryBundle("GPS", "", dateTime, duration, distance, calories, 0, "", climb, current_speed, average_speed, locationList )
 
                 val message: Message = tempHandler.obtainMessage()
                 message.data = bundle
