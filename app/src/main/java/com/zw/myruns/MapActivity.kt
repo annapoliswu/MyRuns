@@ -58,6 +58,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     private lateinit var climbTV : TextView
     private lateinit var caloriesTV : TextView
     private lateinit var distanceTV : TextView
+    private lateinit var units : String
 
     //for displays and passing bundle
     private var averageSpeed: Float = 0F
@@ -87,6 +88,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
 
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
         serviceIntent = Intent(this, TrackingService::class.java)
+
+        //unit preferences
+        val sharedPref = getSharedPreferences(
+            getString(R.string.settings_preference_key),
+            Context.MODE_PRIVATE
+        )
+        units = sharedPref.getString("units_key", getString(R.string.default_units))!!
 
         //stat views setup
         activityTypeTV = findViewById(R.id.mapstat_activity_type)
@@ -265,12 +273,29 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
     //to change the map stats textviews
     private fun changeStats(activityType: String, averageSpeed: Float, currentSpeed : Float, climb : Float, calories : Int, distance : Float ){
         val strFormat = "%.2f"
+
+        var avgSpeedPrefUnits = averageSpeed
+        var currSpeedPrefUnits = currentSpeed
+        var climbPrefUnits = climb
+        var distancePrefUnits = distance
+
+        var unitAbrev : String
+        if(units == "Miles"){ //miles is what we're storing in, don't need to convert
+            unitAbrev = "miles"
+        }else{
+            unitAbrev = "km"
+            avgSpeedPrefUnits = Util.milesToKm(averageSpeed) //same conversion since both in /hrs
+            currSpeedPrefUnits = Util.milesToKm(currentSpeed)
+            climbPrefUnits = Util.milesToKm(climb)
+            distancePrefUnits = Util.milesToKm(distance)
+        }
+
         activityTypeTV.text = "Activity Type: ${activityType}"
-        averageSpeedTV.text = "Average Speed: ${String.format(strFormat, averageSpeed)} m/h"
-        currentSpeedTV.text = "Current Speed: ${String.format(strFormat, currentSpeed)} m/h"
-        climbTV.text = "Climb: ${String.format(strFormat, climb)} miles"
+        averageSpeedTV.text = "Average Speed: ${String.format(strFormat, avgSpeedPrefUnits)} $unitAbrev/hr"
+        currentSpeedTV.text = "Current Speed: ${String.format(strFormat, currSpeedPrefUnits)} $unitAbrev/hr"
+        climbTV.text = "Climb: ${String.format(strFormat, climbPrefUnits)} $unitAbrev"
         caloriesTV.text = "Calories: " + calories + " cal"
-        distanceTV.text = "Distance: ${String.format(strFormat, distance)} miles"
+        distanceTV.text = "Distance: ${String.format(strFormat, distancePrefUnits)} $unitAbrev"
     }
 
     //make sure permissions on for tracking service to start
