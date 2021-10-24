@@ -11,8 +11,15 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.maps.model.LatLng
 import android.hardware.*
+import kotlinx.coroutines.CoroutineScope
 import java.util.*
+import java.util.concurrent.ArrayBlockingQueue
 import kotlin.collections.ArrayList
+import kotlin.math.sqrt
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
 
 /**
  * gets location, calculates speeds and other stats, sends bundle to MapViewModel
@@ -42,6 +49,8 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private var lastTime : Long = 0L
 
     private lateinit var sensorManager : SensorManager
+    private lateinit var mAccBuffer: ArrayBlockingQueue<Double>
+    var classifyTask: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -51,15 +60,21 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
         locationList = ArrayList()
         initLocationManager()
 
+        mAccBuffer = ArrayBlockingQueue<Double>(Globals.ACCELEROMETER_BUFFER_CAPACITY)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+
+        classifyTask = CoroutineScope(IO).launch{
+            classifyTask()
+        }
 
         showNotification()
 
         dateTime = Util.calendarToString( Calendar.getInstance() )
         startTime = getTime()
     }
+
 
 
     override fun onBind(intent: Intent): IBinder {
@@ -101,6 +116,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
             locationManager.removeUpdates(this)
         sensorManager.unregisterListener(this)
         locationList.clear()
+        classifyTask?.cancel()
     }
 
     //when location changes, do calculations for everything, then send message notifying update
@@ -225,18 +241,82 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     override fun onProviderEnabled(provider: String) {}
 
 
-    //for myruns5 later
+    //when accelorometer data changed, get magnitude and add magnitude to buffer
     override fun onSensorChanged(event: SensorEvent?) {
-        if(event != null && event.sensor.type == Sensor.TYPE_ACCELEROMETER){
-            val x = (event.values[0] / SensorManager.GRAVITY_EARTH).toDouble()
-            val y = (event.values[1] / SensorManager.GRAVITY_EARTH).toDouble()
-            val z = (event.values[2] / SensorManager.GRAVITY_EARTH).toDouble()
+        if(event != null && event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION){
+
+            val x = (event.values[0]).toDouble()
+            val y = (event.values[1]).toDouble()
+            val z = (event.values[2]).toDouble()
             //onresume registerlistener, onpause unregister listener..
+
+            val mag = sqrt(x*x + y*y + z*z)
+            Log.d("onSensorChanged", "$mag")
+            try {
+                mAccBuffer.add(mag)
+            } catch (e: IllegalStateException) {
+                // Exception happens when reach the capacity.
+                // Doubling the buffer. ListBlockingQueue has no such issue, but generally has worse performance
+                val newBuf = ArrayBlockingQueue<Double>(mAccBuffer.size * 2)
+                mAccBuffer.drainTo(newBuf)
+                mAccBuffer = newBuf
+                mAccBuffer.add(mag)
+            }
         }
     }
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
         //TODO: not implemented, maybe not needed
     }
+
+
+    /* basically the part from the dataCollector to get a feature vector. runs in background in a coroutine.
+     * once buffer of 64 magnitudes is full, creates a feature vector w/ max and calls WekaClassifier function on it to classify
+     */
+    private suspend fun classifyTask() {
+        Log.d("classifyTask", "at start")
+        // Create the feature vector for classification
+        val featVect = ArrayList<Double>(Globals.ACCELEROMETER_BLOCK_CAPACITY)
+        var blockSize = 0
+        val fft = FFT(Globals.ACCELEROMETER_BLOCK_CAPACITY)
+        val accBlock = DoubleArray(Globals.ACCELEROMETER_BLOCK_CAPACITY)
+        val im = DoubleArray(Globals.ACCELEROMETER_BLOCK_CAPACITY)
+        var max = Double.MIN_VALUE
+        while (true) {
+            try {
+                // Dumping buffer
+                accBlock[blockSize++] = mAccBuffer.take().toDouble()
+                if (blockSize == Globals.ACCELEROMETER_BLOCK_CAPACITY) {
+                    //Buffer size reached
+                    blockSize = 0
+                    max = .0
+                    for (`val` in accBlock) {
+                        if (max < `val`) {
+                            max = `val`
+                        }
+                    }
+                    fft.fft(accBlock, im)
+                    for (i in accBlock.indices) {
+                        val mag = Math.sqrt(
+                            accBlock[i] * accBlock[i] + im[i]
+                                    * im[i]
+                        )
+                        im[i] = .0 // Clear the field
+                        featVect.add(mag)
+                    }
+                    featVect.add(max)
+
+                    //Use Weka function to classify
+                    val classifiedVal = WekaClassifier.classify( featVect.toArray() ).toInt()
+                    Log.d("classifyTask", "classified val: $classifiedVal")
+                    featVect.clear()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+        }
+    }
+
 
 
 }
