@@ -12,7 +12,14 @@ object Globals {
     const val ACTIVITY_ID_STANDING = 0
     const val ACTIVITY_ID_WALKING = 1
     const val ACTIVITY_ID_RUNNING = 2
-    const val ACTIVITY_ID_OTHER = 2
+    const val ACTIVITY_ID_OTHER = 3     //changed this to 3 to separate from running
+
+    val CLASS_ACTIVITY_ARRAY = arrayOf(
+        "Standing",
+        "Walking",
+        "Running",
+        "Other"
+    )
 
     const val SERVICE_TASK_TYPE_COLLECT = 0
     const val SERVICE_TASK_TYPE_CLASSIFY = 1
@@ -24,6 +31,7 @@ object Globals {
     const val CLASS_LABEL_WALKING = "walking"
     const val CLASS_LABEL_RUNNING = "running"
     const val CLASS_LABEL_OTHER = "others"
+
 
     const val FEAT_FFT_COEF_LABEL = "fft_coef_"
     const val FEAT_MAX_LABEL = "max"

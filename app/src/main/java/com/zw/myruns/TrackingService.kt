@@ -33,6 +33,8 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
     private val CHANNEL_ID = "notification channel"
     companion object{
         val MSG_INT_VALUE = 0
+        val CLASSIFY_MSG_INT_VAL = 1
+        val CLASSIFY_KEY = "classified_activity_key"
     }
 
     private lateinit var locationList : ArrayList<LatLng>
@@ -308,12 +310,32 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
                     //Use Weka function to classify
                     val classifiedVal = WekaClassifier.classify( featVect.toArray() ).toInt()
                     Log.d("classifyTask", "classified val: $classifiedVal")
+                    sendClassifyMessage(Globals.CLASS_ACTIVITY_ARRAY[classifiedVal])
+
+
                     featVect.clear()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
+        }
+    }
+
+    //format to send a separate message with weka classified activity_type
+    private fun sendClassifyMessage(classifiedVal: String){
+        try {
+            val tempHandler = msgHandler
+            if (tempHandler != null) {
+                val bundle = Bundle()
+                bundle.putString(CLASSIFY_KEY, classifiedVal)
+                val message: Message = tempHandler.obtainMessage()
+                message.data = bundle
+                message.what = CLASSIFY_MSG_INT_VAL
+                tempHandler.sendMessage(message)
+            }
+        } catch (t: Throwable) {
+            Log.d("TrackingService", t.toString())
         }
     }
 

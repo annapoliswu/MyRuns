@@ -17,6 +17,11 @@ class MapViewModel  : ViewModel(), ServiceConnection {
     val bundle: LiveData<Bundle>
         get() = _bundle
 
+    private var _classfiedActivityType = MutableLiveData<String>()
+    val classfiedActivityType: LiveData<String>
+        get() = _classfiedActivityType
+
+
     private lateinit var messHandler: MyMessageHandler
     init {
         messHandler = MyMessageHandler(Looper.getMainLooper())
@@ -41,6 +46,8 @@ class MapViewModel  : ViewModel(), ServiceConnection {
         override fun handleMessage(mess: Message) {
             if (mess.what == TrackingService.MSG_INT_VALUE) {
                 _bundle.value = mess.data
+            }else if(mess.what == TrackingService.CLASSIFY_MSG_INT_VAL){
+                _classfiedActivityType.value = mess.data.getString(TrackingService.CLASSIFY_KEY)
             }
         }
     }

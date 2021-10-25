@@ -154,7 +154,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
         val extras = intent.extras
         if(extras != null){
 
-            if(extras.containsKey("entry_id")){
+            if(extras.containsKey("entry_id")){ //if display only
                 val id = extras.getLong("entry_id")
                 exerciseViewModel.allEntries.observe(this, Observer { changedList ->
                     val entry = changedList.find { ee -> ee.id == id }
@@ -167,10 +167,19 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                         currentSpeedTV.text = "Current Speed: n/a"
                     }
                 })
-            }else{
+            }else{ //if recording run
                 checkPermissionStartService()
                 activityType = extras.getString("activity_type", "")
                 inputType = extras.getString("input_type", "")
+
+                if(inputType == "Automatic"){
+                    activityType = "Unknown"
+                    mapViewModel.classfiedActivityType.observe(this, Observer { classStr ->
+                        activityType = classStr
+                        Log.d("MapAct", "classStr: $classStr")
+                    })
+                }
+
 
                 //placeholder starter marker for loading? idk it's in the demo
                 addPlaceholderMarker()
@@ -178,6 +187,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                 mapViewModel.bundle.observe(this, Observer { bundle ->
                     drawMap(bundle)
                 })
+
+
             }
         }
     }
