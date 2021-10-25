@@ -1,6 +1,8 @@
 package com.zw.myruns
 
-
+/*
+*  GLobal values for feature vector and accelerometer classification stuff
+* */
 object Globals {
     // Debugging tag
     const val TAG = "MyRuns"
@@ -12,7 +14,7 @@ object Globals {
     const val ACTIVITY_ID_STANDING = 0
     const val ACTIVITY_ID_WALKING = 1
     const val ACTIVITY_ID_RUNNING = 2
-    const val ACTIVITY_ID_OTHER = 3     //changed this to 3 to separate from running
+    const val ACTIVITY_ID_OTHER = 2
 
     val CLASS_ACTIVITY_ARRAY = arrayOf(
         "Standing",

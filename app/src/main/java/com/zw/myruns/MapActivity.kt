@@ -172,8 +172,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback{
                 activityType = extras.getString("activity_type", "")
                 inputType = extras.getString("input_type", "")
 
+                //if automatic, observe the weka classification message.
                 if(inputType == "Automatic"){
-                    activityType = "Unknown"
+                    activityType = "Standing"      //starts on 'standing' in myruns5 demo
                     mapViewModel.classfiedActivityType.observe(this, Observer { classStr ->
                         activityType = classStr
                         Log.d("MapAct", "classStr: $classStr")

@@ -250,10 +250,8 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
             val x = (event.values[0]).toDouble()
             val y = (event.values[1]).toDouble()
             val z = (event.values[2]).toDouble()
-            //onresume registerlistener, onpause unregister listener..
-
             val mag = sqrt(x*x + y*y + z*z)
-            Log.d("onSensorChanged", "$mag")
+
             try {
                 mAccBuffer.add(mag)
             } catch (e: IllegalStateException) {
@@ -267,7 +265,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
         }
     }
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-        //TODO: not implemented, maybe not needed
+        //not needed
     }
 
 
@@ -275,7 +273,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
      * once buffer of 64 magnitudes is full, creates a feature vector w/ max and calls WekaClassifier function on it to classify
      */
     private suspend fun classifyTask() {
-        Log.d("classifyTask", "at start")
+
         // Create the feature vector for classification
         val featVect = ArrayList<Double>(Globals.ACCELEROMETER_BLOCK_CAPACITY)
         var blockSize = 0
@@ -291,7 +289,7 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
                     //Buffer size reached
                     blockSize = 0
                     max = .0
-                    for (`val` in accBlock) {
+                    for (`val` in accBlock) { //find max value
                         if (max < `val`) {
                             max = `val`
                         }
@@ -307,11 +305,9 @@ class TrackingService : Service(), LocationListener, SensorEventListener {
                     }
                     featVect.add(max)
 
-                    //Use Weka function to classify
+                    //Use Weka function to classify and send message
                     val classifiedVal = WekaClassifier.classify( featVect.toArray() ).toInt()
-                    Log.d("classifyTask", "classified val: $classifiedVal")
                     sendClassifyMessage(Globals.CLASS_ACTIVITY_ARRAY[classifiedVal])
-
 
                     featVect.clear()
                 }
