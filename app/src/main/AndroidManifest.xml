@@ -35,7 +35,8 @@
 
         <activity
             android:name=".MapActivity"
-            android:label="Map" />
+            android:label="Map"
+            android:theme="@style/Light.NoActionBar"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

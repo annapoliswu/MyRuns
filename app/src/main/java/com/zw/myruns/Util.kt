@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.room.TypeConverter
@@ -76,7 +77,6 @@ object Util {
     }
 
 
-
     //functions for easy exercise entry passing between various map/manual activities and start fragment
     fun createEntryIntent(inputType: String,
                           activityType: String,
@@ -92,21 +92,11 @@ object Util {
                           locations : ArrayList<LatLng> ): Intent {
 
         val intent = Intent()
-        intent.putExtra("input_type", inputType)
-        intent.putExtra("activity_type", activityType)
-        intent.putExtra("date_time", dateTime)
-        intent.putExtra("duration", duration)
-        intent.putExtra("distance", distance)
-        intent.putExtra("calories", calories)
-        intent.putExtra("heart_rate", heartRate)
-        intent.putExtra("comment", comment)
-        intent.putExtra("climb", climb)
-        intent.putExtra("average_pace", avgPace)
-        intent.putExtra("average_speed", avgSpeed)
-        intent.putExtra("locations", locations)
-
+        val bundle = createEntryBundle(inputType, activityType, dateTime, duration, distance, calories, heartRate, comment, climb, avgPace, avgSpeed, locations)
+        intent.putExtras(bundle)
         return intent
     }
+
 
     fun createEntryIntent(
         inputType: String,
@@ -123,29 +113,59 @@ object Util {
         )
     }
 
+
     //Ease of use function to convert intent to a database entry
     fun getEntryFromIntent(intent : Intent): ExerciseEntry{
-        val ee = ExerciseEntry()
+        var ee = ExerciseEntry()
         val extras = intent.extras
         if(extras != null) {
-            ee.inputType = extras.getString("input_type", "")
-            ee.activityType = extras.getString("activity_type", "")
-            ee.dateTime = extras.getString("date_time", "")
-            ee.duration = extras.getFloat("duration", 0F)
-            ee.distance = extras.getFloat("distance", 0F)
-            ee.calories = extras.getInt("calories", 0)
-            ee.heartRate = extras.getInt("heart_rate", 0)
-            ee.comment = extras.getString("comment", "")
-            ee.climb = extras.getFloat("climb", 0F)
-            ee.avgPace = extras.getFloat("average_pace", 0F)
-            ee.avgSpeed = extras.getFloat("average_speed", 0F)
-            ee.locations = extras.getParcelableArrayList("locations")!!
+            ee = getEntryFromBundle(extras)
         }else{
             println("EXTRAS NULL!")
         }
         return ee
     }
 
+    //same but for bundles
+    fun createEntryBundle(inputType: String, activityType: String, dateTime : String, duration : Float, distance : Float, calories : Int, heartRate : Int, comment: String, climb : Float, avgPace : Float, avgSpeed : Float, locations : ArrayList<LatLng>
+    ): Bundle {
+        val bundle = Bundle()
+        bundle.putString("input_type", inputType)
+        bundle.putString("activity_type", activityType)
+        bundle.putString("date_time", dateTime)
+        bundle.putFloat("duration", duration)
+        bundle.putFloat("distance", distance)
+        bundle.putInt("calories", calories)
+        bundle.putInt("heart_rate", heartRate)
+        bundle.putString("comment", comment)
+        bundle.putFloat("climb", climb)
+        bundle.putFloat("average_pace", avgPace)
+        bundle.putFloat("average_speed", avgSpeed)
+        bundle.putString("locations", fromArrayList(locations))
+        return bundle
+    }
+
+    fun getBundleFromEntry(ee : ExerciseEntry) : Bundle{
+        val bundle = createEntryBundle(ee.inputType, ee.activityType, ee.dateTime, ee.duration, ee.distance, ee.calories, ee.heartRate, ee.comment, ee.climb, ee.avgPace, ee.avgSpeed, ee.locations)
+        return bundle
+    }
+
+    fun getEntryFromBundle(extras : Bundle): ExerciseEntry {
+        val ee = ExerciseEntry()
+        ee.inputType = extras.getString("input_type", "")
+        ee.activityType = extras.getString("activity_type", "")
+        ee.dateTime = extras.getString("date_time", "")
+        ee.duration = extras.getFloat("duration", 0F)
+        ee.distance = extras.getFloat("distance", 0F)
+        ee.calories = extras.getInt("calories", 0)
+        ee.heartRate = extras.getInt("heart_rate", 0)
+        ee.comment = extras.getString("comment", "")
+        ee.climb = extras.getFloat("climb", 0F)
+        ee.avgPace = extras.getFloat("average_pace", 0F)
+        ee.avgSpeed = extras.getFloat("average_speed", 0F)
+        ee.locations = toArrayList( extras.getString("locations")!! )
+        return ee
+    }
 
 
 
@@ -174,6 +194,15 @@ object Util {
         return miles
     }
 
+    fun metersToMiles(meters : Float): Float{
+        val miles = meters / 1609.344F
+        return miles
+    }
+
+    fun milesToMeters(miles: Float) : Float{
+        val meters = miles * 1609.344F
+        return meters
+    }
 
     //given minutes in a float, return just minutes
     fun getMinutes(duration: Float): Int{
